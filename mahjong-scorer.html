@@ -1,0 +1,800 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1" />
+<meta name="theme-color" content="#0f0f0f" />
+<title>麻雀計分</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Noto+Sans+HK:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0f0f0f;
+    --surface:#171717;
+    --surface-2:#1f1f23;
+    --surface-3:#27272a;
+    --border:#2a2a2e;
+    --text:#e5e7eb;
+    --muted:#71717a;
+    --gold:#f59e0b;
+    --gold-soft:#fbbf24;
+    --rose:#f43f5e;
+    --emerald:#10b981;
+    --nav-h:64px;
+    --safe-bot:env(safe-area-inset-bottom,0px);
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:'Noto Sans HK','Inter',system-ui,sans-serif;overscroll-behavior-y:none}
+  body{min-height:100vh;min-height:100dvh}
+  button{font-family:inherit;color:inherit;border:0;background:none;cursor:pointer}
+  input{font-family:inherit;color:inherit}
+  .num{font-family:'Inter','Noto Sans HK',sans-serif;font-variant-numeric:tabular-nums}
+
+  /* App shell */
+  .app{max-width:520px;margin:0 auto;padding:16px 14px calc(var(--nav-h) + var(--safe-bot) + 24px);min-height:100dvh}
+  .header{display:flex;align-items:center;justify-content:space-between;padding:6px 4px 14px}
+  .header h1{font-size:20px;font-weight:900;letter-spacing:.5px;margin:0}
+  .header h1 .accent{color:var(--gold)}
+  .header .sub{font-size:11px;color:var(--muted);letter-spacing:2px}
+
+  /* Pages */
+  .page{display:none;animation:fadeSlide .25s ease}
+  .page.active{display:block}
+  @keyframes fadeSlide{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+  /* ---------- PAGE 1: 番數記錄 ---------- */
+  .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+  .col{display:flex;flex-direction:column;gap:6px}
+  .name-cell{
+    background:var(--surface);border:1px solid var(--border);border-radius:12px;
+    padding:10px 6px;text-align:center;font-weight:700;font-size:14px;color:var(--text);
+    min-height:44px;display:flex;align-items:center;justify-content:center;
+  }
+  .name-cell input{width:100%;background:transparent;border:0;outline:0;text-align:center;font-weight:700;font-size:14px;color:var(--gold);font-family:inherit}
+  .output-cell{
+    background:linear-gradient(180deg,#1a1408,#171717);
+    border:1px solid #3a2a08;border-radius:14px;padding:14px 6px;text-align:center;
+    color:var(--gold);font-weight:900;font-size:30px;min-height:64px;
+    display:flex;align-items:center;justify-content:center;
+    font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;
+    box-shadow:inset 0 0 0 1px rgba(245,158,11,.06), 0 6px 20px -12px rgba(245,158,11,.4);
+    transition:transform .2s ease;
+  }
+  .output-cell.flash{animation:flashGold .5s ease}
+  @keyframes flashGold{0%{transform:scale(1)}40%{transform:scale(1.12);text-shadow:0 0 18px rgba(245,158,11,.7)}100%{transform:scale(1)}}
+  .btn{
+    background:var(--surface-2);border:1px solid var(--border);border-radius:12px;
+    padding:10px 6px;font-weight:700;font-size:14px;min-height:44px;color:var(--text);
+    transition:transform .08s ease, background .15s ease;
+  }
+  .btn:active{transform:scale(.96)}
+  .btn-tikai{color:var(--gold-soft)}
+  .btn-tikai:active{background:#2a1f08}
+  .btn-zhao{background:linear-gradient(180deg,#0e3a2a,#0a2a20);border-color:#0f5132;color:#a7f3d0}
+  .btn-zhao:active{background:#0a2a20}
+  .btn-zhao.success{animation:greenFlash .55s ease}
+  @keyframes greenFlash{0%{box-shadow:0 0 0 0 rgba(16,185,129,.6)}50%{box-shadow:0 0 0 12px rgba(16,185,129,0)}100%{box-shadow:0 0 0 0 rgba(16,185,129,0)}}
+  .input-cell{
+    background:var(--surface);border:1px solid var(--border);border-radius:10px;
+    padding:10px 4px;text-align:center;font-weight:700;font-size:18px;
+    min-height:46px;display:flex;align-items:center;justify-content:center;
+    color:var(--text);transition:background .15s ease;
+    font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;
+  }
+  .input-cell.empty{color:var(--muted);font-weight:400}
+  .input-cell.neg{color:var(--rose)}
+  .input-cell:active{background:var(--surface-3)}
+
+  /* ---------- PAGE 2: 埋數 ---------- */
+  .diamond{display:flex;flex-direction:column;align-items:center;gap:14px;padding:12px 4px 22px;}
+  .row-d{display:flex;justify-content:center;gap:14px;width:100%}
+  .player-card{
+    background:var(--surface);border:1px solid var(--border);border-radius:18px;
+    padding:18px 10px;width:140px;text-align:center;
+    box-shadow:0 8px 24px -16px rgba(0,0,0,.6);
+  }
+  .player-card.me{width:72%;max-width:280px;border-color:#3a2a08;background:linear-gradient(180deg,#1a1408,#171717)}
+  .player-card .pname{font-size:13px;color:var(--muted);font-weight:600;margin-bottom:6px;letter-spacing:.5px}
+  .player-card.me .pname{color:var(--gold)}
+  .player-card .pscore{font-size:34px;font-weight:900;font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;line-height:1}
+  .player-card.me .pscore{font-size:44px}
+  .pscore.pos{color:var(--emerald)}
+  .pscore.neg{color:var(--rose)}
+  .pscore.zero{color:var(--muted)}
+  .pscore.bump{animation:bump .35s ease}
+  @keyframes bump{0%{transform:scale(1)}50%{transform:scale(1.18)}100%{transform:scale(1)}}
+  .write-btn{
+    width:100%;margin-top:14px;padding:16px;border-radius:14px;
+    background:linear-gradient(180deg,var(--gold-soft),var(--gold));color:#1a1100;
+    font-weight:900;font-size:16px;letter-spacing:1px;min-height:52px;
+    box-shadow:0 10px 24px -10px rgba(245,158,11,.5);
+  }
+  .write-btn:active{transform:scale(.98)}
+  .write-btn[disabled]{opacity:.6}
+
+  /* ---------- PAGE 3: 小氣簿 ---------- */
+  .ledger-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+  .refresh-btn{padding:8px 14px;border-radius:10px;background:var(--surface-2);border:1px solid var(--border);font-size:13px;font-weight:600;color:var(--gold-soft)}
+  .day-block{margin-bottom:18px;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:12px 14px}
+  .day-date{font-size:13px;color:var(--gold);font-weight:700;letter-spacing:1px;margin-bottom:8px}
+  .day-row{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:6px;padding:8px 0;border-top:1px dashed var(--border)}
+  .day-row:first-of-type{border-top:0}
+  .pl-name{font-size:11px;color:var(--muted);text-align:center}
+  .pl-score{font-size:20px;font-weight:800;text-align:center;font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums}
+  .empty-state{text-align:center;padding:60px 20px;color:var(--muted)}
+  .skeleton{background:linear-gradient(90deg,#1a1a1d 0%,#27272a 50%,#1a1a1d 100%);background-size:200% 100%;animation:sk 1.2s linear infinite;border-radius:10px;height:80px;margin-bottom:12px}
+  @keyframes sk{0%{background-position:200% 0}100%{background-position:-200% 0}}
+
+  /* ---------- BOTTOM NAV ---------- */
+  .nav{
+    position:fixed;left:0;right:0;bottom:0;z-index:30;
+    background:rgba(15,15,15,.92);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+    border-top:1px solid var(--border);
+    padding-bottom:var(--safe-bot);
+  }
+  .nav-inner{max-width:520px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr 1fr;height:var(--nav-h)}
+  .nav-tab{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;color:var(--muted);font-size:11px;font-weight:600;position:relative}
+  .nav-tab svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.8}
+  .nav-tab.active{color:var(--gold);font-weight:800}
+  .nav-tab.active::after{content:"";position:absolute;top:6px;width:24px;height:3px;border-radius:2px;background:var(--gold)}
+
+  /* ---------- FAB ---------- */
+  .fab{
+    position:fixed;right:16px;bottom:calc(var(--nav-h) + var(--safe-bot) + 16px);z-index:40;
+    width:56px;height:56px;border-radius:50%;
+    background:linear-gradient(180deg,var(--gold-soft),var(--gold));color:#1a1100;
+    font-size:30px;font-weight:900;line-height:1;
+    box-shadow:0 14px 28px -10px rgba(245,158,11,.55);
+    display:flex;align-items:center;justify-content:center;
+    transition:transform .25s cubic-bezier(.5,1.6,.4,1);
+  }
+  .fab.open{transform:rotate(45deg)}
+  .fab:active{transform:scale(.94)}
+  .fab.open:active{transform:rotate(45deg) scale(.94)}
+  .fab-menu{
+    position:fixed;right:16px;bottom:calc(var(--nav-h) + var(--safe-bot) + 84px);z-index:40;
+    display:flex;flex-direction:column;gap:10px;align-items:flex-end;pointer-events:none;
+  }
+  .fab-item{
+    background:var(--surface-2);border:1px solid var(--border);color:var(--text);
+    padding:10px 16px;border-radius:24px;font-weight:700;font-size:14px;
+    display:flex;align-items:center;gap:8px;min-height:44px;
+    box-shadow:0 8px 20px -8px rgba(0,0,0,.6);
+    opacity:0;transform:translateY(14px) scale(.9);pointer-events:none;
+    transition:opacity .25s ease, transform .35s cubic-bezier(.5,1.6,.4,1);
+  }
+  .fab-menu.open{pointer-events:auto}
+  .fab-menu.open .fab-item{opacity:1;transform:none;pointer-events:auto}
+  .fab-menu.open .fab-item:nth-child(1){transition-delay:.05s}
+  .fab-menu.open .fab-item:nth-child(2){transition-delay:.10s}
+  .fab-menu.open .fab-item:nth-child(3){transition-delay:.15s}
+  .fab-item .ico{font-size:16px}
+  .fab-item.danger{color:var(--rose)}
+  .fab-item.gold{color:var(--gold)}
+
+  /* ---------- MODAL / NUMPAD ---------- */
+  .scrim{
+    position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:50;
+    display:none;align-items:flex-end;justify-content:center;
+  }
+  .scrim.show{display:flex;animation:fadeIn .2s ease}
+  @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+  .sheet{
+    width:100%;max-width:520px;background:var(--surface);border-radius:20px 20px 0 0;
+    border-top:1px solid var(--border);padding:18px 16px calc(20px + var(--safe-bot));
+    animation:slideUp .28s cubic-bezier(.2,.8,.3,1);
+  }
+  @keyframes slideUp{from{transform:translateY(100%)}to{transform:none}}
+  .sheet-title{text-align:center;font-weight:700;font-size:14px;color:var(--muted);margin-bottom:10px;letter-spacing:1px}
+  .numpad-display{
+    background:var(--bg);border:1px solid var(--border);border-radius:14px;
+    padding:18px;text-align:right;font-size:38px;font-weight:800;
+    font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;
+    color:var(--gold);margin-bottom:14px;min-height:78px;
+    display:flex;align-items:center;justify-content:flex-end;
+  }
+  .numpad-display.neg{color:var(--rose)}
+  .numpad-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+  .np-btn{
+    background:var(--surface-2);border:1px solid var(--border);border-radius:14px;
+    padding:18px 0;font-size:24px;font-weight:700;min-height:60px;
+    transition:transform .08s ease, background .12s ease;
+  }
+  .np-btn:active{transform:scale(.94);background:var(--surface-3)}
+  .np-btn.fn{font-size:18px;color:var(--gold-soft)}
+  .np-btn.cancel{color:var(--rose)}
+  .np-btn.confirm{background:linear-gradient(180deg,#0e3a2a,#0a2a20);color:#a7f3d0;border-color:#0f5132}
+
+  /* Generic modal */
+  .modal{
+    width:100%;max-width:520px;background:var(--surface);border-radius:20px 20px 0 0;
+    border-top:1px solid var(--border);padding:22px 18px calc(22px + var(--safe-bot));
+    animation:slideUp .28s cubic-bezier(.2,.8,.3,1);
+  }
+  .modal h3{margin:0 0 8px;font-size:18px;font-weight:800}
+  .modal p{color:var(--muted);font-size:14px;line-height:1.55;margin:0 0 16px}
+  .modal .field{margin-bottom:10px}
+  .modal label{display:block;font-size:12px;color:var(--muted);margin-bottom:5px;letter-spacing:.5px}
+  .modal input{
+    width:100%;background:var(--bg);border:1px solid var(--border);border-radius:10px;
+    padding:12px 14px;font-size:16px;outline:0;
+  }
+  .modal input:focus{border-color:var(--gold)}
+  .modal-actions{display:flex;gap:10px;margin-top:18px}
+  .m-btn{flex:1;padding:14px;border-radius:12px;font-weight:700;font-size:15px;min-height:48px}
+  .m-btn.ghost{background:var(--surface-2);border:1px solid var(--border);color:var(--text)}
+  .m-btn.primary{background:linear-gradient(180deg,var(--gold-soft),var(--gold));color:#1a1100}
+  .m-btn.danger{background:linear-gradient(180deg,#9f1239,#7f1d1d);color:#fecdd3}
+  .m-btn:active{transform:scale(.97)}
+
+  /* Toast */
+  .toast-wrap{position:fixed;top:calc(env(safe-area-inset-top,0px) + 14px);left:0;right:0;z-index:80;display:flex;justify-content:center;pointer-events:none}
+  .toast{
+    pointer-events:auto;background:var(--surface-2);border:1px solid var(--border);
+    color:var(--text);padding:12px 18px;border-radius:14px;font-weight:700;font-size:14px;
+    box-shadow:0 14px 28px -12px rgba(0,0,0,.7);max-width:88%;
+    animation:tIn .3s ease, tOut .35s ease 2.15s forwards;
+  }
+  .toast.success{border-color:#0f5132;color:#a7f3d0}
+  .toast.error{border-color:#7f1d1d;color:#fecdd3}
+  @keyframes tIn{from{transform:translateY(-20px);opacity:0}to{transform:none;opacity:1}}
+  @keyframes tOut{to{transform:translateY(-20px);opacity:0}}
+</style>
+</head>
+<body>
+
+<div class="app">
+  <div class="header">
+    <h1>麻雀<span class="accent">計分</span></h1>
+    <span class="sub" id="pageLabel">FAN</span>
+  </div>
+
+  <!-- ========== PAGE 1: 番數記錄 ========== -->
+  <section class="page" id="page-fan">
+    <div class="grid3" id="namesRow"></div>
+    <div class="grid3" style="margin-top:8px" id="outputRow"></div>
+    <div class="grid3" style="margin-top:8px" id="tikaiRow"></div>
+    <div class="grid3" style="margin-top:6px" id="zhaoRow"></div>
+    <div style="height:14px"></div>
+    <div class="grid3" id="inputsGrid"></div>
+  </section>
+
+  <!-- ========== PAGE 2: 埋數 ========== -->
+  <section class="page" id="page-mai">
+    <div class="diamond">
+      <div class="row-d"><div class="player-card" id="pc-2"><div class="pname"></div><div class="pscore num">0</div></div></div>
+      <div class="row-d">
+        <div class="player-card" id="pc-1"><div class="pname"></div><div class="pscore num">0</div></div>
+        <div class="player-card" id="pc-0"><div class="pname"></div><div class="pscore num">0</div></div>
+      </div>
+      <div class="row-d"><div class="player-card me" id="pc-3"><div class="pname"></div><div class="pscore num">0</div></div></div>
+    </div>
+    <button class="write-btn" id="writeBtn">寫入小氣簿</button>
+  </section>
+
+  <!-- ========== PAGE 3: 小氣簿 ========== -->
+  <section class="page" id="page-ledger">
+    <div class="ledger-head">
+      <div style="font-size:13px;color:var(--muted);letter-spacing:1px">歷史記錄</div>
+      <button class="refresh-btn" id="refreshBtn">↻ 重新整理</button>
+    </div>
+    <div id="ledgerList"></div>
+  </section>
+</div>
+
+<!-- FAB -->
+<div class="fab-menu" id="fabMenu">
+  <button class="fab-item danger" data-action="reset"><span class="ico">↺</span>重設牌局</button>
+  <button class="fab-item gold" data-action="rename"><span class="ico">✎</span>改名</button>
+  <button class="fab-item" data-action="undo"><span class="ico">⟲</span>復原</button>
+</div>
+<button class="fab" id="fabBtn" aria-label="menu">+</button>
+
+<!-- Bottom Nav -->
+<nav class="nav">
+  <div class="nav-inner">
+    <button class="nav-tab active" data-page="fan">
+      <svg viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="3"/><circle cx="9" cy="8" r="1" fill="currentColor"/><circle cx="15" cy="12" r="1" fill="currentColor"/><circle cx="9" cy="16" r="1" fill="currentColor"/></svg>
+      番數記錄
+    </button>
+    <button class="nav-tab" data-page="mai">
+      <svg viewBox="0 0 24 24"><ellipse cx="12" cy="7" rx="7" ry="3"/><path d="M5 7v5c0 1.7 3.1 3 7 3s7-1.3 7-3V7"/><path d="M5 12v5c0 1.7 3.1 3 7 3s7-1.3 7-3v-5"/></svg>
+      埋數
+    </button>
+    <button class="nav-tab" data-page="ledger">
+      <svg viewBox="0 0 24 24"><path d="M5 4h12a2 2 0 0 1 2 2v14H7a2 2 0 0 1-2-2V4z"/><path d="M5 18a2 2 0 0 1 2-2h12"/><path d="M9 8h7M9 12h7"/></svg>
+      小氣簿
+    </button>
+  </div>
+</nav>
+
+<!-- Numpad Sheet -->
+<div class="scrim" id="numpadScrim">
+  <div class="sheet" id="numpadSheet" role="dialog">
+    <div class="sheet-title" id="numpadTitle">輸入分數</div>
+    <div class="numpad-display" id="numpadDisplay">0</div>
+    <div class="numpad-grid">
+      <button class="np-btn" data-k="1">1</button>
+      <button class="np-btn" data-k="2">2</button>
+      <button class="np-btn" data-k="3">3</button>
+      <button class="np-btn" data-k="4">4</button>
+      <button class="np-btn" data-k="5">5</button>
+      <button class="np-btn" data-k="6">6</button>
+      <button class="np-btn" data-k="7">7</button>
+      <button class="np-btn" data-k="8">8</button>
+      <button class="np-btn" data-k="9">9</button>
+      <button class="np-btn fn" data-k="sign">±</button>
+      <button class="np-btn" data-k="0">0</button>
+      <button class="np-btn fn" data-k="back">⌫</button>
+      <button class="np-btn cancel" data-k="cancel">✕ 取消</button>
+      <button class="np-btn fn" data-k="clear">清除</button>
+      <button class="np-btn confirm" data-k="confirm">✓ 確認</button>
+    </div>
+  </div>
+</div>
+
+<!-- Generic Modal -->
+<div class="scrim" id="modalScrim">
+  <div class="modal" id="modalBox"></div>
+</div>
+
+<div class="toast-wrap" id="toastWrap"></div>
+
+<script src="./firebase-config.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script>
+/* ============================================================
+   麻雀計分 — vanilla JS app
+============================================================ */
+
+// ---------- Firebase ----------
+let db = null;
+try {
+  if (window.__FIREBASE_CONFIG__ && window.firebase) {
+    firebase.initializeApp(window.__FIREBASE_CONFIG__);
+    db = firebase.database();
+  }
+} catch (e) { console.warn('Firebase init failed', e); }
+
+// ---------- State ----------
+const LS = {
+  names:'mj_names', inputs:'mj_inputs', outputs:'mj_outputs',
+  tikai:'mj_tikai', accumulated:'mj_accumulated', undo:'mj_undo_snapshot',
+};
+const DEFAULT_NAMES = ['閒1','閒2','閒3','我'];
+
+function load(key, fallback){
+  try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : fallback; }
+  catch { return fallback; }
+}
+function save(key, val){ localStorage.setItem(key, JSON.stringify(val)); }
+
+let names = load(LS.names, DEFAULT_NAMES.slice());
+let inputs = load(LS.inputs, [Array(7).fill(null), Array(7).fill(null), Array(7).fill(null)]);
+let outputs = load(LS.outputs, [0,0,0]);
+let tikai = load(LS.tikai, [false,false,false]);
+let accumulated = load(LS.accumulated, [0,0,0,0]); // [user1,user2,user3,me]
+let undoSnap = load(LS.undo, null);
+
+function persist(){
+  save(LS.names,names); save(LS.inputs,inputs); save(LS.outputs,outputs);
+  save(LS.tikai,tikai); save(LS.accumulated,accumulated); save(LS.undo,undoSnap);
+}
+
+// ---------- Scoring ----------
+function computeRaw(col){
+  const filled = col.filter(v=>v!==null && v!==undefined);
+  if(!filled.length) return 0;
+  let sum=0;
+  for(let i=0;i<filled.length;i++){
+    const power = filled.length - 1 - i;
+    sum += filled[i] * Math.pow(1.5, power);
+  }
+  return Math.ceil(sum);
+}
+function recomputeOutput(c){
+  outputs[c] = computeRaw(inputs[c]);
+  tikai[c] = false;
+}
+
+// ---------- Toast ----------
+function toast(msg, kind){
+  const wrap = document.getElementById('toastWrap');
+  const el = document.createElement('div');
+  el.className = 'toast' + (kind ? ' '+kind : '');
+  el.textContent = msg;
+  wrap.appendChild(el);
+  setTimeout(()=>el.remove(), 2500);
+}
+
+// ---------- Render: Page 1 ----------
+function renderNames(){
+  const row = document.getElementById('namesRow');
+  row.innerHTML = '';
+  for(let c=0;c<3;c++){
+    const cell = document.createElement('div');
+    cell.className='name-cell';
+    cell.innerHTML = `<input value="${escapeHtml(names[c])}" data-idx="${c}" maxlength="6" />`;
+    row.appendChild(cell);
+  }
+  row.querySelectorAll('input').forEach(inp=>{
+    inp.addEventListener('change', e=>{
+      const i = +e.target.dataset.idx;
+      const v = e.target.value.trim() || DEFAULT_NAMES[i];
+      names[i] = v;
+      persist(); renderAll();
+    });
+    inp.addEventListener('focus', e=>e.target.select());
+  });
+}
+function renderOutputs(){
+  const row = document.getElementById('outputRow');
+  row.innerHTML='';
+  for(let c=0;c<3;c++){
+    const d = document.createElement('div');
+    d.className='output-cell num';
+    d.id='out-'+c;
+    d.textContent = outputs[c];
+    row.appendChild(d);
+  }
+}
+function renderActionBtns(){
+  const t = document.getElementById('tikaiRow');
+  const z = document.getElementById('zhaoRow');
+  t.innerHTML=''; z.innerHTML='';
+  for(let c=0;c<3;c++){
+    const tb = document.createElement('button');
+    tb.className='btn btn-tikai'; tb.textContent='踢半';
+    tb.addEventListener('click', ()=>doTikai(c));
+    t.appendChild(tb);
+    const zb = document.createElement('button');
+    zb.className='btn btn-zhao'; zb.textContent='找數';
+    zb.dataset.col = c;
+    zb.addEventListener('click', ()=>doZhao(c));
+    z.appendChild(zb);
+  }
+}
+function renderInputs(){
+  const g = document.getElementById('inputsGrid');
+  g.innerHTML='';
+  // grid layout: 7 rows × 3 cols. We'll lay out row-major.
+  g.style.gridTemplateRows = 'repeat(7, auto)';
+  g.style.display='grid';
+  g.style.gridTemplateColumns='1fr 1fr 1fr';
+  g.style.gap='6px';
+  for(let r=0;r<7;r++){
+    for(let c=0;c<3;c++){
+      const v = inputs[c][r];
+      const cell = document.createElement('button');
+      const isEmpty = v===null||v===undefined;
+      cell.className = 'input-cell num' + (isEmpty?' empty':'') + (!isEmpty && v<0?' neg':'');
+      cell.textContent = isEmpty ? '-' : String(v);
+      cell.addEventListener('click', ()=>openNumpad(c,r));
+      g.appendChild(cell);
+    }
+  }
+}
+
+// ---------- Render: Page 2 ----------
+function renderMai(animateIdx){
+  for(let i=0;i<4;i++){
+    const card = document.getElementById('pc-'+i);
+    if(!card) continue;
+    card.querySelector('.pname').textContent = i===3 ? names[3] : names[i];
+    const sEl = card.querySelector('.pscore');
+    const v = accumulated[i];
+    sEl.textContent = v;
+    sEl.classList.remove('pos','neg','zero','bump');
+    sEl.classList.add(v>0?'pos':(v<0?'neg':'zero'));
+    if(animateIdx===i){
+      // force reflow then re-add
+      void sEl.offsetWidth;
+      sEl.classList.add('bump');
+    }
+  }
+}
+
+// ---------- 踢半 / 找數 ----------
+function doTikai(c){
+  const out = document.getElementById('out-'+c);
+  outputs[c] = Math.floor(outputs[c]/2);
+  tikai[c] = true;
+  out.textContent = outputs[c];
+  out.classList.remove('flash'); void out.offsetWidth; out.classList.add('flash');
+  persist();
+}
+function doZhao(c){
+  const score = outputs[c];
+  if(score === 0){ toast('分數為 0，無需找數'); return; }
+  // snapshot for undo BEFORE mutating
+  undoSnap = {
+    accumulated: accumulated.slice(),
+    inputs: inputs.map(col=>col.slice()),
+    outputs: outputs.slice(),
+    tikai: tikai.slice(),
+    who: names[c],
+    whoIdx: c,
+    score,
+  };
+  // user c (0..2 → idx 0..2 in accumulated)  loses; me gains
+  accumulated[c] -= score;
+  accumulated[3] += score;
+  // clear that column
+  inputs[c] = Array(7).fill(null);
+  outputs[c] = 0;
+  tikai[c] = false;
+  persist();
+
+  // visual feedback on the zhao button
+  const btn = document.querySelector(`#zhaoRow [data-col="${c}"]`);
+  if(btn){ btn.classList.remove('success'); void btn.offsetWidth; btn.classList.add('success'); }
+
+  renderInputs(); renderOutputs(); renderMai(c); renderMai(3);
+  // Re-bump me too (renderMai only animates one idx)
+  const meEl = document.querySelector('#pc-3 .pscore');
+  void meEl.offsetWidth; meEl.classList.add('bump');
+
+  toast('已找數 ✓','success');
+}
+
+// ---------- Numpad ----------
+let npCtx = null; // {c,r}
+let npVal = '';
+let npNeg = false;
+function openNumpad(c,r){
+  npCtx = {c,r};
+  const cur = inputs[c][r];
+  if(cur===null||cur===undefined){ npVal=''; npNeg=false; }
+  else { npNeg = cur<0; npVal = String(Math.abs(cur)); }
+  document.getElementById('numpadTitle').textContent = `${names[c]} · 第 ${r+1} 行`;
+  updateNpDisplay();
+  document.getElementById('numpadScrim').classList.add('show');
+}
+function closeNumpad(){
+  document.getElementById('numpadScrim').classList.remove('show');
+  npCtx=null;
+}
+function updateNpDisplay(){
+  const d = document.getElementById('numpadDisplay');
+  const shown = (npVal===''?'0':npVal);
+  d.textContent = (npNeg && shown!=='0' ? '-' : '') + shown;
+  d.classList.toggle('neg', npNeg && shown!=='0');
+}
+function onNpKey(k){
+  if(/^[0-9]$/.test(k)){
+    if(npVal==='0') npVal=k;
+    else if(npVal.length<6) npVal+=k;
+  } else if(k==='back'){ npVal = npVal.slice(0,-1); }
+  else if(k==='clear'){ npVal=''; npNeg=false; }
+  else if(k==='sign'){ npNeg = !npNeg; }
+  else if(k==='cancel'){ closeNumpad(); return; }
+  else if(k==='confirm'){
+    const {c,r} = npCtx;
+    if(npVal===''){
+      inputs[c][r] = null;
+    } else {
+      let n = parseInt(npVal,10);
+      if(npNeg) n = -n;
+      inputs[c][r] = n;
+    }
+    recomputeOutput(c);
+    persist();
+    renderInputs(); renderOutputs();
+    const out = document.getElementById('out-'+c);
+    out.classList.remove('flash'); void out.offsetWidth; out.classList.add('flash');
+    closeNumpad();
+    return;
+  }
+  updateNpDisplay();
+}
+document.querySelectorAll('#numpadSheet .np-btn').forEach(b=>{
+  b.addEventListener('click', ()=>onNpKey(b.dataset.k));
+});
+document.getElementById('numpadScrim').addEventListener('click', e=>{
+  if(e.target.id==='numpadScrim') closeNumpad();
+});
+
+// ---------- Page 3: Ledger ----------
+async function loadLedger(){
+  const list = document.getElementById('ledgerList');
+  list.innerHTML = '<div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div>';
+  if(!db){
+    list.innerHTML = '<div class="empty-state">Firebase 未連線</div>';
+    return;
+  }
+  try {
+    const snap = await db.ref('records').orderByChild('timestamp').limitToLast(200).once('value');
+    const data = snap.val() || {};
+    const records = Object.values(data).sort((a,b)=>(b.timestamp||0)-(a.timestamp||0));
+    if(!records.length){
+      list.innerHTML = '<div class="empty-state">尚無記錄</div>'; return;
+    }
+    // group by date
+    const groups = {};
+    records.forEach(r=>{
+      const d = r.date || new Date(r.timestamp||0).toISOString().slice(0,10);
+      (groups[d] = groups[d] || []).push(r);
+    });
+    const html = Object.keys(groups).sort((a,b)=>b.localeCompare(a)).map(date=>{
+      const pretty = date.replace(/-/g,'').replace(/(\d{4})(\d{2})(\d{2})/,'$1年$2月$3日');
+      const rows = groups[date].map(rec=>{
+        const players = rec.players || {};
+        const entries = Object.entries(players);
+        const cols = entries.map(([n,s])=>{
+          const cls = s>0?'pos':(s<0?'neg':'zero');
+          return `<div><div class="pl-name">${escapeHtml(n)}</div><div class="pl-score ${cls}" style="color:${s>0?'var(--emerald)':(s<0?'var(--rose)':'var(--muted)')}">${s}</div></div>`;
+        }).join('');
+        return `<div class="day-row" style="grid-template-columns:repeat(${Math.max(entries.length,1)},1fr)">${cols}</div>`;
+      }).join('');
+      return `<div class="day-block"><div class="day-date">${pretty}</div>${rows}</div>`;
+    }).join('');
+    list.innerHTML = html;
+  } catch(e){
+    console.error(e);
+    list.innerHTML = '<div class="empty-state">載入失敗</div>';
+    toast('載入失敗','error');
+  }
+}
+
+// ---------- 寫入小氣簿 ----------
+document.getElementById('writeBtn').addEventListener('click', async ()=>{
+  const btn = document.getElementById('writeBtn');
+  if(!db){ toast('Firebase 未連線','error'); return; }
+  btn.disabled=true; const orig=btn.textContent; btn.textContent='寫入中…';
+  try {
+    const ts = Date.now();
+    const date = new Date(ts);
+    const dateStr = `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`;
+    const players = {};
+    [0,1,2,3].forEach(i=>{ players[names[i]] = accumulated[i]; });
+    await db.ref('records/'+ts).set({ date:dateStr, timestamp:ts, players });
+    // also push per-player history
+    await Promise.all([0,1,2,3].map(i=>
+      db.ref('players/'+encodeKey(names[i])+'/history').push({ timestamp:ts, date:dateStr, score:accumulated[i] })
+    ));
+    toast('已寫入小氣簿 ✓','success');
+  } catch(e){
+    console.error(e);
+    toast('寫入失敗','error');
+  } finally {
+    btn.disabled=false; btn.textContent=orig;
+  }
+});
+function encodeKey(s){ return String(s).replace(/[.#$\/\[\]]/g,'_'); }
+
+// ---------- Routing / Tabs ----------
+function setPage(name){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  const el = document.getElementById('page-'+name);
+  if(el) el.classList.add('active');
+  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.toggle('active', t.dataset.page===name));
+  document.getElementById('pageLabel').textContent = ({fan:'FAN',mai:'埋數',ledger:'LEDGER'})[name] || '';
+  if(location.hash !== '#'+name) location.hash = name;
+  if(name==='ledger') loadLedger();
+}
+document.querySelectorAll('.nav-tab').forEach(t=>{
+  t.addEventListener('click', ()=>setPage(t.dataset.page));
+});
+window.addEventListener('hashchange', ()=>{
+  const h = location.hash.replace('#','');
+  if(['fan','mai','ledger'].includes(h)) setPage(h);
+});
+
+// ---------- FAB ----------
+const fab = document.getElementById('fabBtn');
+const fabMenu = document.getElementById('fabMenu');
+fab.addEventListener('click', ()=>{
+  fab.classList.toggle('open'); fabMenu.classList.toggle('open');
+});
+document.addEventListener('click', e=>{
+  if(!fab.contains(e.target) && !fabMenu.contains(e.target) && fab.classList.contains('open')){
+    fab.classList.remove('open'); fabMenu.classList.remove('open');
+  }
+});
+fabMenu.querySelectorAll('.fab-item').forEach(b=>{
+  b.addEventListener('click', ()=>{
+    fab.classList.remove('open'); fabMenu.classList.remove('open');
+    const a = b.dataset.action;
+    if(a==='reset') confirmReset();
+    else if(a==='rename') openRename();
+    else if(a==='undo') confirmUndo();
+  });
+});
+
+// ---------- Modal helpers ----------
+function openModal(html){
+  document.getElementById('modalBox').innerHTML = html;
+  document.getElementById('modalScrim').classList.add('show');
+}
+function closeModal(){ document.getElementById('modalScrim').classList.remove('show'); }
+document.getElementById('modalScrim').addEventListener('click', e=>{
+  if(e.target.id==='modalScrim') closeModal();
+});
+
+function confirmReset(){
+  openModal(`
+    <h3>重設牌局</h3>
+    <p>確定重設牌局？此操作無法復原。所有番數、輸入、埋數將清零（玩家名稱保留）。</p>
+    <div class="modal-actions">
+      <button class="m-btn ghost" id="mc">取消</button>
+      <button class="m-btn danger" id="mo">確認重設</button>
+    </div>
+  `);
+  document.getElementById('mc').onclick = closeModal;
+  document.getElementById('mo').onclick = ()=>{
+    inputs = [Array(7).fill(null),Array(7).fill(null),Array(7).fill(null)];
+    outputs = [0,0,0]; tikai = [false,false,false];
+    accumulated = [0,0,0,0]; undoSnap = null;
+    persist(); renderAll(); closeModal();
+    toast('已重設牌局','success');
+  };
+}
+
+function openRename(){
+  openModal(`
+    <h3>改名</h3>
+    <p>修改玩家顯示名稱（最多 6 字）。</p>
+    ${[0,1,2,3].map(i=>`
+      <div class="field">
+        <label>${i===3?'我 (User 0)':'User '+(i+1)}</label>
+        <input data-i="${i}" maxlength="6" value="${escapeHtml(names[i])}" />
+      </div>
+    `).join('')}
+    <div class="modal-actions">
+      <button class="m-btn ghost" id="mc">取消</button>
+      <button class="m-btn primary" id="mo">儲存</button>
+    </div>
+  `);
+  document.getElementById('mc').onclick = closeModal;
+  document.getElementById('mo').onclick = ()=>{
+    document.querySelectorAll('#modalBox input').forEach(inp=>{
+      const i = +inp.dataset.i;
+      const v = inp.value.trim();
+      names[i] = v || DEFAULT_NAMES[i];
+    });
+    persist(); renderAll(); closeModal();
+    toast('已更新名稱','success');
+  };
+}
+
+function confirmUndo(){
+  if(!undoSnap){ toast('沒有可復原的操作'); return; }
+  openModal(`
+    <h3>復原</h3>
+    <p>將復原 <b style="color:var(--gold)">${escapeHtml(undoSnap.who)}</b> 的找數操作（${undoSnap.score} 分）。確定繼續？</p>
+    <div class="modal-actions">
+      <button class="m-btn ghost" id="mc">取消</button>
+      <button class="m-btn primary" id="mo">確認復原</button>
+    </div>
+  `);
+  document.getElementById('mc').onclick = closeModal;
+  document.getElementById('mo').onclick = ()=>{
+    accumulated = undoSnap.accumulated.slice();
+    inputs = undoSnap.inputs.map(c=>c.slice());
+    outputs = undoSnap.outputs.slice();
+    tikai = undoSnap.tikai.slice();
+    undoSnap = null;
+    persist(); renderAll(); closeModal();
+    toast('已復原','success');
+  };
+}
+
+// ---------- Utils ----------
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g, c=>({
+    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+  }[c]));
+}
+
+// ---------- Boot ----------
+function renderAll(){
+  renderNames(); renderOutputs(); renderActionBtns(); renderInputs(); renderMai();
+}
+renderAll();
+const initial = location.hash.replace('#','');
+setPage(['fan','mai','ledger'].includes(initial) ? initial : 'fan');
+</script>
+</body>
+</html>
