@@ -93,12 +93,14 @@
     background:var(--surface);border:1px solid var(--border);border-radius:18px;
     padding:18px 10px;width:140px;text-align:center;
     box-shadow:0 8px 24px -16px rgba(0,0,0,.6);
+    cursor:pointer;transition:transform .08s ease, background .15s ease;
   }
-  .player-card.me{width:72%;max-width:280px;border-color:#3a2a08;background:linear-gradient(180deg,#1a1408,#171717)}
+  .player-card:active{transform:scale(.97);background:var(--surface-2)}
+  .player-card.me{width:140px;border-color:#3a2a08;background:linear-gradient(180deg,#1a1408,#171717)}
   .player-card .pname{font-size:13px;color:var(--muted);font-weight:600;margin-bottom:6px;letter-spacing:.5px}
   .player-card.me .pname{color:var(--gold)}
   .player-card .pscore{font-size:34px;font-weight:900;font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;line-height:1}
-  .player-card.me .pscore{font-size:44px}
+  .player-card.me .pscore{font-size:34px}
   .pscore.pos{color:var(--emerald)}
   .pscore.neg{color:var(--rose)}
   .pscore.zero{color:var(--muted)}
@@ -112,10 +114,21 @@
   }
   .write-btn:active{transform:scale(.98)}
   .write-btn[disabled]{opacity:.6}
+  .div-bar{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:8px}
+  .div-btn{
+    background:var(--surface-2);border:1px solid var(--border);border-radius:12px;
+    padding:12px 6px;font-weight:800;font-size:18px;min-height:48px;color:var(--gold-soft);
+    font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;
+    transition:transform .08s ease, background .15s ease;
+  }
+  .div-btn:active{transform:scale(.96);background:var(--surface-3)}
 
   /* ---------- PAGE 3: 小氣簿 ---------- */
   .ledger-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
   .refresh-btn{padding:8px 14px;border-radius:10px;background:var(--surface-2);border:1px solid var(--border);font-size:13px;font-weight:600;color:var(--gold-soft)}
+  .ledger-tabs{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:14px;background:var(--surface);padding:4px;border-radius:12px;border:1px solid var(--border)}
+  .ledger-tab{padding:10px;border-radius:8px;font-weight:700;font-size:13px;color:var(--muted);transition:background .15s ease, color .15s ease}
+  .ledger-tab.active{background:var(--surface-2);color:var(--gold)}
   .day-block{margin-bottom:18px;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:12px 14px}
   .day-date{font-size:13px;color:var(--gold);font-weight:700;letter-spacing:1px;margin-bottom:8px}
   .day-row{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:6px;padding:8px 0;border-top:1px dashed var(--border)}
@@ -125,6 +138,20 @@
   .empty-state{text-align:center;padding:60px 20px;color:var(--muted)}
   .skeleton{background:linear-gradient(90deg,#1a1a1d 0%,#27272a 50%,#1a1a1d 100%);background-size:200% 100%;animation:sk 1.2s linear infinite;border-radius:10px;height:80px;margin-bottom:12px}
   @keyframes sk{0%{background-position:200% 0}100%{background-position:-200% 0}}
+  .stats-input-wrap{margin-bottom:16px}
+  .stats-input-wrap label{display:block;font-size:11px;color:var(--muted);margin-bottom:6px;letter-spacing:1px}
+  .stats-input-wrap input{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px;font-size:16px;outline:0;color:var(--text);font-family:inherit}
+  .stats-input-wrap input:focus{border-color:var(--gold)}
+  .stats-section{margin-bottom:14px;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px}
+  .stats-title{font-size:13px;color:var(--gold);font-weight:700;margin-bottom:12px;letter-spacing:1px}
+  .stats-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .stats-cell{text-align:center;padding:6px 4px;background:var(--bg);border:1px solid var(--border);border-radius:10px}
+  .stats-label{font-size:11px;color:var(--muted);margin-bottom:8px;letter-spacing:.5px}
+  .stats-value{font-size:22px;font-weight:900;font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;line-height:1.1}
+  .stats-value.pos{color:var(--emerald)}
+  .stats-value.neg{color:var(--rose)}
+  .stats-value.zero{color:var(--muted)}
+  .stats-meta{font-size:11px;color:var(--muted);margin-top:6px;min-height:14px}
 
   /* ---------- BOTTOM NAV ---------- */
   .nav{
@@ -202,9 +229,13 @@
     transition:transform .08s ease, background .12s ease;
   }
   .np-btn:active{transform:scale(.94);background:var(--surface-3)}
-  .np-btn.fn{font-size:18px;color:var(--gold-soft)}
+  .np-btn.fn{font-size:22px;color:var(--gold-soft)}
   .np-btn.cancel{color:var(--rose)}
-  .np-btn.confirm{background:linear-gradient(180deg,#0e3a2a,#0a2a20);color:#a7f3d0;border-color:#0f5132}
+  .np-btn.confirm{background:linear-gradient(180deg,#0e3a2a,#0a2a20);color:#a7f3d0;border-color:#0f5132;font-size:18px}
+  .np-btn.np-blank{visibility:hidden;pointer-events:none}
+  .np-btn.np-plus{color:var(--emerald);font-size:26px}
+  .np-btn.np-minus{color:var(--rose);font-size:26px}
+  .np-btn.np-clear{color:var(--rose);font-size:22px}
 
   /* Generic modal */
   .modal{
@@ -247,7 +278,7 @@
 <div class="app">
   <div class="header">
     <h1>麻雀<span class="accent">計分</span></h1>
-    <span class="sub" id="pageLabel">FAN</span>
+    <span class="sub" id="pageLabel">番數</span>
   </div>
 
   <!-- ========== PAGE 1: 番數記錄 ========== -->
@@ -270,16 +301,72 @@
       </div>
       <div class="row-d"><div class="player-card me" id="pc-3"><div class="pname"></div><div class="pscore num">0</div></div></div>
     </div>
+    <div class="div-bar" id="divBar">
+      <button class="div-btn" data-d="4">÷4</button>
+      <button class="div-btn" data-d="3">÷3</button>
+      <button class="div-btn" data-d="2">÷2</button>
+    </div>
     <button class="write-btn" id="writeBtn">寫入小氣簿</button>
   </section>
 
   <!-- ========== PAGE 3: 小氣簿 ========== -->
   <section class="page" id="page-ledger">
-    <div class="ledger-head">
-      <div style="font-size:13px;color:var(--muted);letter-spacing:1px">歷史記錄</div>
-      <button class="refresh-btn" id="refreshBtn">↻ 重新整理</button>
+    <div class="ledger-tabs">
+      <button class="ledger-tab active" data-view="history">歷史記錄</button>
+      <button class="ledger-tab" data-view="stats">數據統計</button>
     </div>
     <div id="ledgerList"></div>
+    <div id="ledgerStats" style="display:none">
+      <div class="stats-input-wrap">
+        <label>玩家名稱</label>
+        <input id="statsName" placeholder="輸入名稱" list="statsNameList" autocomplete="off" />
+        <datalist id="statsNameList"></datalist>
+      </div>
+      <div class="stats-section">
+        <div class="stats-title" id="stat-yearTitle">全年累積</div>
+        <div class="stats-row">
+          <div class="stats-cell">
+            <div class="stats-label">總金額</div>
+            <div class="stats-value" id="stat-yearTotal">—</div>
+          </div>
+          <div class="stats-cell">
+            <div class="stats-label">勝率</div>
+            <div class="stats-value" id="stat-winRate">—</div>
+            <div class="stats-meta" id="stat-winRateMeta"></div>
+          </div>
+        </div>
+      </div>
+      <div class="stats-section">
+        <div class="stats-title">個人記錄</div>
+        <div class="stats-row">
+          <div class="stats-cell">
+            <div class="stats-label">最佳</div>
+            <div class="stats-value" id="stat-best">—</div>
+            <div class="stats-meta" id="stat-bestDate"></div>
+          </div>
+          <div class="stats-cell">
+            <div class="stats-label">最差</div>
+            <div class="stats-value" id="stat-worst">—</div>
+            <div class="stats-meta" id="stat-worstDate"></div>
+          </div>
+        </div>
+      </div>
+      <div class="stats-section">
+        <div class="stats-title">雀友記錄</div>
+        <div class="stats-row">
+          <div class="stats-cell">
+            <div class="stats-label">麻將俠</div>
+            <div class="stats-value" id="stat-topWinner">—</div>
+            <div class="stats-meta" id="stat-topWinnerName"></div>
+          </div>
+          <div class="stats-cell">
+            <div class="stats-label">輸錢皇</div>
+            <div class="stats-value" id="stat-topLoser">—</div>
+            <div class="stats-meta" id="stat-topLoserName"></div>
+          </div>
+        </div>
+      </div>
+    </div>
   </section>
 </div>
 
@@ -314,23 +401,7 @@
   <div class="sheet" id="numpadSheet" role="dialog">
     <div class="sheet-title" id="numpadTitle">輸入分數</div>
     <div class="numpad-display" id="numpadDisplay">0</div>
-    <div class="numpad-grid">
-      <button class="np-btn" data-k="1">1</button>
-      <button class="np-btn" data-k="2">2</button>
-      <button class="np-btn" data-k="3">3</button>
-      <button class="np-btn" data-k="4">4</button>
-      <button class="np-btn" data-k="5">5</button>
-      <button class="np-btn" data-k="6">6</button>
-      <button class="np-btn" data-k="7">7</button>
-      <button class="np-btn" data-k="8">8</button>
-      <button class="np-btn" data-k="9">9</button>
-      <button class="np-btn fn" data-k="sign">±</button>
-      <button class="np-btn" data-k="0">0</button>
-      <button class="np-btn fn" data-k="back">⌫</button>
-      <button class="np-btn cancel" data-k="cancel">✕ 取消</button>
-      <button class="np-btn fn" data-k="clear">清除</button>
-      <button class="np-btn confirm" data-k="confirm">✓ 確認</button>
-    </div>
+    <div class="numpad-grid" id="numpadGrid"></div>
   </div>
 </div>
 
@@ -361,9 +432,9 @@ try {
 // ---------- State ----------
 const LS = {
   names:'mj_names', inputs:'mj_inputs', outputs:'mj_outputs',
-  tikai:'mj_tikai', accumulated:'mj_accumulated', undo:'mj_undo_snapshot',
+  tikai:'mj_tikai', accumulated:'mj_accumulated', undo:'mj_undo_stack',
 };
-const DEFAULT_NAMES = ['閒1','閒2','閒3','我'];
+const DEFAULT_NAMES = ['user 1','user 2','user 3','me'];
 
 function load(key, fallback){
   try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : fallback; }
@@ -376,11 +447,12 @@ let inputs = load(LS.inputs, [Array(7).fill(null), Array(7).fill(null), Array(7)
 let outputs = load(LS.outputs, [0,0,0]);
 let tikai = load(LS.tikai, [false,false,false]);
 let accumulated = load(LS.accumulated, [0,0,0,0]); // [user1,user2,user3,me]
-let undoSnap = load(LS.undo, null);
+let undoStack = load(LS.undo, []);
+if(!Array.isArray(undoStack)) undoStack = undoStack ? [undoStack] : [];
 
 function persist(){
   save(LS.names,names); save(LS.inputs,inputs); save(LS.outputs,outputs);
-  save(LS.tikai,tikai); save(LS.accumulated,accumulated); save(LS.undo,undoSnap);
+  save(LS.tikai,tikai); save(LS.accumulated,accumulated); save(LS.undo,undoStack);
 }
 
 // ---------- Scoring ----------
@@ -414,9 +486,9 @@ function renderNames(){
   const row = document.getElementById('namesRow');
   row.innerHTML = '';
   for(let c=0;c<3;c++){
-    const cell = document.createElement('div');
-    cell.className='name-cell';
-    cell.innerHTML = `<input value="${escapeHtml(names[c])}" data-idx="${c}" maxlength="6" />`;
+  const cell = document.createElement('div');
+  cell.className='name-cell';
+  cell.innerHTML = `<input value="${escapeHtml(names[c])}" data-idx="${c}" maxlength="7" />`;
     row.appendChild(cell);
   }
   row.querySelectorAll('input').forEach(inp=>{
@@ -485,9 +557,10 @@ function renderMai(animateIdx){
     card.querySelector('.pname').textContent = i===3 ? names[3] : names[i];
     const sEl = card.querySelector('.pscore');
     const v = accumulated[i];
-    sEl.textContent = v;
+    sEl.textContent = (Number(v)||0).toFixed(1);
     sEl.classList.remove('pos','neg','zero','bump');
     sEl.classList.add(v>0?'pos':(v<0?'neg':'zero'));
+    card.onclick = ()=>openNumpadMai(i);
     if(animateIdx===i){
       // force reflow then re-add
       void sEl.offsetWidth;
@@ -509,7 +582,7 @@ function doZhao(c){
   const score = outputs[c];
   if(score === 0){ toast('分數為 0，無需找數'); return; }
   // snapshot for undo BEFORE mutating
-  undoSnap = {
+  undoStack.push({
     accumulated: accumulated.slice(),
     inputs: inputs.map(col=>col.slice()),
     outputs: outputs.slice(),
@@ -517,7 +590,7 @@ function doZhao(c){
     who: names[c],
     whoIdx: c,
     score,
-  };
+  });
   // user c (0..2 → idx 0..2 in accumulated)  loses; me gains
   accumulated[c] -= score;
   accumulated[3] += score;
@@ -540,39 +613,161 @@ function doZhao(c){
 }
 
 // ---------- Numpad ----------
-let npCtx = null; // {c,r}
+const NP_LAYOUTS = {
+  fan: [
+    [{k:'sign',label:'-',cls:'fn'}, {k:'noop',label:'',cls:'np-blank'}, {k:'confirm',label:'完成',cls:'confirm'}],
+    [{k:'1',label:'1'},{k:'2',label:'2'},{k:'3',label:'3'}],
+    [{k:'4',label:'4'},{k:'5',label:'5'},{k:'6',label:'6'}],
+    [{k:'7',label:'7'},{k:'8',label:'8'},{k:'9',label:'9'}],
+    [{k:'noop',label:'',cls:'np-blank'}, {k:'0',label:'0'}, {k:'back',label:'⌫',cls:'fn'}],
+  ],
+  mai: [
+    [{k:'plus',label:'+',cls:'np-plus'}, {k:'minus',label:'−',cls:'np-minus'}, {k:'confirm',label:'完成',cls:'confirm'}],
+    [{k:'1',label:'1'},{k:'2',label:'2'},{k:'3',label:'3'}],
+    [{k:'4',label:'4'},{k:'5',label:'5'},{k:'6',label:'6'}],
+    [{k:'7',label:'7'},{k:'8',label:'8'},{k:'9',label:'9'}],
+    [{k:'dot',label:'.',cls:'fn'}, {k:'0',label:'0'}, {k:'back',label:'⌫',cls:'fn'}],
+  ],
+};
+let npMode = 'fan';
+let npCtx = null; // fan: {c,r}; mai: {i}
 let npVal = '';
 let npNeg = false;
+let npAccum = null; // mai-mode running total
+let npOp = null;    // mai-mode pending operator: '+' or '-'
+function renderNumpad(){
+  const grid = document.getElementById('numpadGrid');
+  grid.innerHTML = '';
+  const layout = NP_LAYOUTS[npMode];
+  for(const row of layout){
+    for(const btn of row){
+      const el = document.createElement('button');
+      el.className = 'np-btn' + (btn.cls?' '+btn.cls:'');
+      el.textContent = btn.label;
+      el.dataset.k = btn.k;
+      if(btn.k !== 'noop') el.addEventListener('click', ()=>onNpKey(btn.k));
+      grid.appendChild(el);
+    }
+  }
+}
 function openNumpad(c,r){
+  npMode = 'fan';
   npCtx = {c,r};
   const cur = inputs[c][r];
   if(cur===null||cur===undefined){ npVal=''; npNeg=false; }
   else { npNeg = cur<0; npVal = String(Math.abs(cur)); }
   document.getElementById('numpadTitle').textContent = `${names[c]} · 第 ${r+1} 行`;
+  renderNumpad();
+  updateNpDisplay();
+  document.getElementById('numpadScrim').classList.add('show');
+}
+function openNumpadMai(i){
+  npMode = 'mai';
+  npCtx = {i};
+  npVal = '';
+  npNeg = false;
+  npAccum = accumulated[i];
+  npOp = null;
+  document.getElementById('numpadTitle').textContent = `${names[i]} · 調整分數`;
+  renderNumpad();
   updateNpDisplay();
   document.getElementById('numpadScrim').classList.add('show');
 }
 function closeNumpad(){
   document.getElementById('numpadScrim').classList.remove('show');
   npCtx=null;
+  npAccum=null; npOp=null;
 }
 function updateNpDisplay(){
   const d = document.getElementById('numpadDisplay');
-  const shown = (npVal===''?'0':npVal);
-  d.textContent = (npNeg && shown!=='0' ? '-' : '') + shown;
-  d.classList.toggle('neg', npNeg && shown!=='0');
+  if(npMode === 'mai'){
+    const parts = [];
+    if(npAccum !== null) parts.push(String(npAccum));
+    if(npOp) parts.push(npOp);
+    if(npVal !== '') parts.push(npVal);
+    d.textContent = parts.length ? parts.join(' ') : '0';
+    d.classList.remove('neg');
+  } else {
+    const shown = (npVal===''?'0':npVal);
+    d.textContent = (npNeg && shown!=='0' ? '-' : '') + shown;
+    d.classList.toggle('neg', npNeg && shown!=='0');
+  }
+}
+function npNormalize(n){
+  const r = Math.round(n*10)/10;
+  return Object.is(r, -0) ? 0 : r;
+}
+function npComputeResult(){
+  if(npOp === null) return parseFloat(npVal===''?(npAccum??0):npVal);
+  if(npVal === '' || npVal === '.') return npAccum ?? 0;
+  const a = npAccum ?? 0;
+  const b = parseFloat(npVal);
+  return npOp === '+' ? a + b : a - b;
+}
+function applyMaiResult(){
+  const {i} = npCtx;
+  const result = npNormalize(npComputeResult());
+  if(result === accumulated[i]){ closeNumpad(); return; }
+  undoStack.push({
+    accumulated: accumulated.slice(),
+    inputs: inputs.map(col=>col.slice()),
+    outputs: outputs.slice(),
+    tikai: tikai.slice(),
+    who: names[i],
+    whoIdx: i,
+    score: result - accumulated[i],
+  });
+  accumulated[i] = result;
+  persist();
+  renderMai(i);
+  closeNumpad();
+  toast(`${names[i]} → ${result.toFixed(1)}`,'success');
 }
 function onNpKey(k){
   if(/^[0-9]$/.test(k)){
+    if(npMode==='mai' && npOp===null && npVal==='' && npAccum!==null){
+      npAccum = null; // start fresh entry, replacing pre-populated value
+    }
     if(npVal==='0') npVal=k;
-    else if(npVal.length<6) npVal+=k;
-  } else if(k==='back'){ npVal = npVal.slice(0,-1); }
-  else if(k==='clear'){ npVal=''; npNeg=false; }
+    else if(npVal.replace('.','').length<6) npVal+=k;
+  } else if(k==='dot'){
+    if(!npVal.includes('.')) npVal = (npVal===''?'0':npVal) + '.';
+  } else if(k==='back'){
+    if(npVal !== ''){
+      npVal = npVal.slice(0,-1);
+    } else if(npMode === 'mai'){
+      if(npOp){
+        npOp = null;
+      } else if(npAccum !== null){
+        const s = String(npAccum);
+        const trimmed = s.slice(0,-1);
+        npAccum = (trimmed === '' || trimmed === '-') ? null : parseFloat(trimmed);
+      }
+    } else if(npNeg){
+      npNeg = false;
+    }
+  }
   else if(k==='sign'){ npNeg = !npNeg; }
   else if(k==='cancel'){ closeNumpad(); return; }
+  else if(k==='plus' || k==='minus'){
+    if(npMode !== 'mai') return;
+    const op = k==='plus' ? '+' : '-';
+    if(npVal !== '' && npVal !== '.'){
+      const n = parseFloat(npVal);
+      if(npAccum === null) npAccum = n;
+      else npAccum = npNormalize(npOp === '+' ? npAccum + n : npAccum - n);
+      npVal = '';
+    } else if(npAccum === null){
+      npAccum = 0;
+    }
+    npOp = op;
+    updateNpDisplay();
+    return;
+  }
   else if(k==='confirm'){
+    if(npMode === 'mai'){ applyMaiResult(); return; }
     const {c,r} = npCtx;
-    if(npVal===''){
+    if(npVal==='' || npVal==='.'){
       inputs[c][r] = null;
     } else {
       let n = parseInt(npVal,10);
@@ -589,54 +784,151 @@ function onNpKey(k){
   }
   updateNpDisplay();
 }
-document.querySelectorAll('#numpadSheet .np-btn').forEach(b=>{
-  b.addEventListener('click', ()=>onNpKey(b.dataset.k));
-});
 document.getElementById('numpadScrim').addEventListener('click', e=>{
   if(e.target.id==='numpadScrim') closeNumpad();
 });
 
 // ---------- Page 3: Ledger ----------
+let ledgerRecords = [];
 async function loadLedger(){
   const list = document.getElementById('ledgerList');
   list.innerHTML = '<div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div>';
   if(!db){
     list.innerHTML = '<div class="empty-state">Firebase 未連線</div>';
+    ledgerRecords = [];
+    renderStats();
     return;
   }
   try {
     const snap = await db.ref('records').orderByChild('timestamp').limitToLast(200).once('value');
     const data = snap.val() || {};
     const records = Object.values(data).sort((a,b)=>(b.timestamp||0)-(a.timestamp||0));
-    if(!records.length){
-      list.innerHTML = '<div class="empty-state">尚無記錄</div>'; return;
+    ledgerRecords = records;
+    renderHistory();
+    populateStatsNames();
+    const inputEl = document.getElementById('statsName');
+    if(!inputEl.dataset.initialized){
+      inputEl.value = names[3] || '';
+      inputEl.dataset.initialized = '1';
     }
-    // group by date
-    const groups = {};
-    records.forEach(r=>{
-      const d = r.date || new Date(r.timestamp||0).toISOString().slice(0,10);
-      (groups[d] = groups[d] || []).push(r);
-    });
-    const html = Object.keys(groups).sort((a,b)=>b.localeCompare(a)).map(date=>{
-      const pretty = date.replace(/-/g,'').replace(/(\d{4})(\d{2})(\d{2})/,'$1年$2月$3日');
-      const rows = groups[date].map(rec=>{
-        const players = rec.players || {};
-        const entries = Object.entries(players);
-        const cols = entries.map(([n,s])=>{
-          const cls = s>0?'pos':(s<0?'neg':'zero');
-          return `<div><div class="pl-name">${escapeHtml(n)}</div><div class="pl-score ${cls}" style="color:${s>0?'var(--emerald)':(s<0?'var(--rose)':'var(--muted)')}">${s}</div></div>`;
-        }).join('');
-        return `<div class="day-row" style="grid-template-columns:repeat(${Math.max(entries.length,1)},1fr)">${cols}</div>`;
-      }).join('');
-      return `<div class="day-block"><div class="day-date">${pretty}</div>${rows}</div>`;
-    }).join('');
-    list.innerHTML = html;
+    renderStats();
   } catch(e){
     console.error(e);
     list.innerHTML = '<div class="empty-state">載入失敗</div>';
     toast('載入失敗','error');
   }
 }
+function renderHistory(){
+  const list = document.getElementById('ledgerList');
+  if(!ledgerRecords.length){
+    list.innerHTML = '<div class="empty-state">尚無記錄</div>';
+    return;
+  }
+  const groups = {};
+  ledgerRecords.forEach(r=>{
+    const d = r.date || new Date(r.timestamp||0).toISOString().slice(0,10);
+    (groups[d] = groups[d] || []).push(r);
+  });
+  const html = Object.keys(groups).sort((a,b)=>b.localeCompare(a)).map(date=>{
+    const pretty = date.replace(/-/g,'').replace(/(\d{4})(\d{2})(\d{2})/,'$1年$2月$3日');
+    const rows = groups[date].map(rec=>{
+      const players = rec.players || {};
+      const entries = Object.entries(players);
+      const cols = entries.map(([n,s])=>{
+        const cls = s>0?'pos':(s<0?'neg':'zero');
+        return `<div><div class="pl-name">${escapeHtml(n)}</div><div class="pl-score ${cls}" style="color:${s>0?'var(--emerald)':(s<0?'var(--rose)':'var(--muted)')}">${s}</div></div>`;
+      }).join('');
+      return `<div class="day-row" style="grid-template-columns:repeat(${Math.max(entries.length,1)},1fr)">${cols}</div>`;
+    }).join('');
+    return `<div class="day-block"><div class="day-date">${pretty}</div>${rows}</div>`;
+  }).join('');
+  list.innerHTML = html;
+}
+function populateStatsNames(){
+  const set = new Set();
+  for(const r of ledgerRecords){
+    if(!r.players) continue;
+    for(const n of Object.keys(r.players)) set.add(n);
+  }
+  const dl = document.getElementById('statsNameList');
+  dl.innerHTML = Array.from(set).map(n=>`<option value="${escapeHtml(n)}">`).join('');
+}
+function fmtMoneyStat(n){
+  const v = Math.round(n*10)/10;
+  if(v === 0) return '$0.0';
+  return (v>0?'+$':'-$') + Math.abs(v).toFixed(1);
+}
+function fmtDateStat(d){
+  return d ? d.replace(/-/g,'').replace(/(\d{4})(\d{2})(\d{2})/,'$1/$2/$3') : '';
+}
+function statClass(n){ return n>0?'pos':(n<0?'neg':'zero'); }
+function setStatValue(id, text, cls){
+  const el = document.getElementById(id);
+  el.textContent = text;
+  el.className = 'stats-value' + (cls?' '+cls:'');
+}
+function renderStats(){
+  const inputEl = document.getElementById('statsName');
+  const q = inputEl.value.trim();
+  const records = ledgerRecords || [];
+  const year = String(new Date().getFullYear());
+  document.getElementById('stat-yearTitle').textContent = `全年累積（${year}）`;
+
+  // Aggregate everyone for 雀友記錄 (not filtered by user)
+  const playerTotals = {};
+  for(const r of records){
+    if(!r.players) continue;
+    for(const [pname, score] of Object.entries(r.players)){
+      playerTotals[pname] = (playerTotals[pname]||0) + (Number(score)||0);
+    }
+  }
+  let topWinner = null, topLoser = null;
+  for(const [pname, total] of Object.entries(playerTotals)){
+    if(topWinner===null || total > topWinner.total) topWinner = {name:pname, total};
+    if(topLoser===null  || total < topLoser.total)  topLoser  = {name:pname, total};
+  }
+
+  // Per-user
+  const userRecs = q ? records.filter(r => r.players && (q in r.players)) : [];
+  const yearRecs = userRecs.filter(r => (r.date||'').startsWith(year));
+  const yearTotal = yearRecs.reduce((s,r)=>s + (Number(r.players[q])||0), 0);
+  const winCount = yearRecs.filter(r => (Number(r.players[q])||0) > 0).length;
+  const winRate = yearRecs.length ? (winCount / yearRecs.length * 100) : null;
+
+  let best=null, worst=null;
+  for(const r of userRecs){
+    const s = Number(r.players[q]) || 0;
+    if(best===null  || s > best.score)  best  = {score:s, date:r.date};
+    if(worst===null || s < worst.score) worst = {score:s, date:r.date};
+  }
+
+  // Year section
+  setStatValue('stat-yearTotal', q ? fmtMoneyStat(yearTotal) : '—', q ? statClass(yearTotal) : '');
+  setStatValue('stat-winRate', winRate===null ? '—' : winRate.toFixed(1)+'%', '');
+  document.getElementById('stat-winRateMeta').textContent = yearRecs.length ? `${winCount}/${yearRecs.length} 場` : '';
+
+  // Personal records
+  setStatValue('stat-best',  best  ? fmtMoneyStat(best.score)  : '—', best  ? statClass(best.score)  : '');
+  document.getElementById('stat-bestDate').textContent  = best  ? fmtDateStat(best.date)  : '';
+  setStatValue('stat-worst', worst ? fmtMoneyStat(worst.score) : '—', worst ? statClass(worst.score) : '');
+  document.getElementById('stat-worstDate').textContent = worst ? fmtDateStat(worst.date) : '';
+
+  // 雀友
+  setStatValue('stat-topWinner', topWinner ? fmtMoneyStat(topWinner.total) : '—', topWinner ? statClass(topWinner.total) : '');
+  document.getElementById('stat-topWinnerName').textContent = topWinner ? topWinner.name : '';
+  setStatValue('stat-topLoser',  topLoser  ? fmtMoneyStat(topLoser.total)  : '—', topLoser  ? statClass(topLoser.total)  : '');
+  document.getElementById('stat-topLoserName').textContent  = topLoser  ? topLoser.name : '';
+}
+document.querySelectorAll('.ledger-tab').forEach(t=>{
+  t.addEventListener('click', ()=>{
+    document.querySelectorAll('.ledger-tab').forEach(x=>x.classList.toggle('active', x===t));
+    const view = t.dataset.view;
+    document.getElementById('ledgerList').style.display  = view==='history' ? '' : 'none';
+    document.getElementById('ledgerStats').style.display = view==='stats'   ? '' : 'none';
+    if(view==='stats') renderStats();
+  });
+});
+document.getElementById('statsName').addEventListener('input', renderStats);
 
 // ---------- 寫入小氣簿 ----------
 document.getElementById('writeBtn').addEventListener('click', async ()=>{
@@ -664,13 +956,35 @@ document.getElementById('writeBtn').addEventListener('click', async ()=>{
 });
 function encodeKey(s){ return String(s).replace(/[.#$\/\[\]]/g,'_'); }
 
+// ---------- ÷N divider bar ----------
+document.querySelectorAll('#divBar .div-btn').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    const d = parseInt(btn.dataset.d,10);
+    if(!d) return;
+    if(accumulated.every(v=>v===0)){ toast('分數全為 0，無需除數'); return; }
+    undoStack.push({
+      accumulated: accumulated.slice(),
+      inputs: inputs.map(col=>col.slice()),
+      outputs: outputs.slice(),
+      tikai: tikai.slice(),
+      who: `÷${d}`,
+      whoIdx: -1,
+      score: 0,
+    });
+    accumulated = accumulated.map(v=>Math.round(v/d*10)/10);
+    persist();
+    renderMai();
+    toast(`已 ÷${d}`,'success');
+  });
+});
+
 // ---------- Routing / Tabs ----------
 function setPage(name){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   const el = document.getElementById('page-'+name);
   if(el) el.classList.add('active');
   document.querySelectorAll('.nav-tab').forEach(t=>t.classList.toggle('active', t.dataset.page===name));
-  document.getElementById('pageLabel').textContent = ({fan:'FAN',mai:'埋數',ledger:'LEDGER'})[name] || '';
+  document.getElementById('pageLabel').textContent = ({fan:'番數',mai:'埋數',ledger:'小氣簿'})[name] || '';
   if(location.hash !== '#'+name) location.hash = name;
   if(name==='ledger') loadLedger();
 }
@@ -699,7 +1013,16 @@ fabMenu.querySelectorAll('.fab-item').forEach(b=>{
     const a = b.dataset.action;
     if(a==='reset') confirmReset();
     else if(a==='rename') openRename();
-    else if(a==='undo') confirmUndo();
+    else if(a==='undo'){
+      if(!undoStack.length){ toast('沒有可復原的操作'); return; }
+      const snap = undoStack.pop();
+      accumulated = snap.accumulated.slice();
+      inputs = snap.inputs.map(c=>c.slice());
+      outputs = snap.outputs.slice();
+      tikai = snap.tikai.slice();
+      persist(); renderAll();
+      toast('已復原','success');
+    }
   });
 });
 
@@ -726,7 +1049,7 @@ function confirmReset(){
   document.getElementById('mo').onclick = ()=>{
     inputs = [Array(7).fill(null),Array(7).fill(null),Array(7).fill(null)];
     outputs = [0,0,0]; tikai = [false,false,false];
-    accumulated = [0,0,0,0]; undoSnap = null;
+    accumulated = [0,0,0,0]; undoStack = [];
     persist(); renderAll(); closeModal();
     toast('已重設牌局','success');
   };
@@ -739,7 +1062,7 @@ function openRename(){
     ${[0,1,2,3].map(i=>`
       <div class="field">
         <label>${i===3?'我 (User 0)':'User '+(i+1)}</label>
-        <input data-i="${i}" maxlength="6" value="${escapeHtml(names[i])}" />
+        <input data-i="${i}" maxlength="7" value="${escapeHtml(names[i])}" />
       </div>
     `).join('')}
     <div class="modal-actions">
@@ -760,10 +1083,11 @@ function openRename(){
 }
 
 function confirmUndo(){
-  if(!undoSnap){ toast('沒有可復原的操作'); return; }
+  if(!undoStack.length){ toast('沒有可復原的操作'); return; }
+  const last = undoStack[undoStack.length-1];
   openModal(`
     <h3>復原</h3>
-    <p>將復原 <b style="color:var(--gold)">${escapeHtml(undoSnap.who)}</b> 的找數操作（${undoSnap.score} 分）。確定繼續？</p>
+    <p>將復原 <b style="color:var(--gold)">${escapeHtml(last.who)}</b> 的找數操作（${last.score} 分）。確定繼續？</p>
     <div class="modal-actions">
       <button class="m-btn ghost" id="mc">取消</button>
       <button class="m-btn primary" id="mo">確認復原</button>
@@ -771,11 +1095,11 @@ function confirmUndo(){
   `);
   document.getElementById('mc').onclick = closeModal;
   document.getElementById('mo').onclick = ()=>{
-    accumulated = undoSnap.accumulated.slice();
-    inputs = undoSnap.inputs.map(c=>c.slice());
-    outputs = undoSnap.outputs.slice();
-    tikai = undoSnap.tikai.slice();
-    undoSnap = null;
+    const snap = undoStack.pop();
+    accumulated = snap.accumulated.slice();
+    inputs = snap.inputs.map(c=>c.slice());
+    outputs = snap.outputs.slice();
+    tikai = snap.tikai.slice();
     persist(); renderAll(); closeModal();
     toast('已復原','success');
   };
