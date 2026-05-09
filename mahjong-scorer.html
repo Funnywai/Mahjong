@@ -122,6 +122,53 @@
     transition:transform .08s ease, background .15s ease;
   }
   .div-btn:active{transform:scale(.96);background:var(--surface-3)}
+  .mai-extra-bar{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+  .mai-extra-btn{
+    background:var(--surface-2);border:1px solid var(--border);border-radius:12px;
+    padding:14px 6px;font-weight:700;font-size:14px;min-height:48px;color:var(--text);
+    transition:transform .08s ease, background .15s ease;
+  }
+  .mai-extra-btn:active{transform:scale(.96);background:var(--surface-3)}
+
+  /* Bonus/Penalty modal */
+  .bp-user-grid{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:6px;margin-bottom:14px}
+  .bp-user-btn{
+    padding:10px 4px;border-radius:10px;font-weight:700;font-size:13px;text-align:center;
+    background:var(--surface-2);border:2px solid var(--border);transition:border-color .15s ease, background .15s ease;
+  }
+  .bp-user-btn.selected{border-color:var(--gold);background:#1a1408}
+  .bp-type-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
+  .bp-type-btn{
+    padding:12px;border-radius:10px;font-weight:700;font-size:15px;text-align:center;
+    background:var(--surface-2);border:2px solid var(--border);transition:border-color .15s ease, background .15s ease;
+  }
+  .bp-type-btn.selected-win{border-color:var(--emerald);background:#0a2a20;color:var(--emerald)}
+  .bp-type-btn.selected-lose{border-color:var(--rose);background:#2a0a14;color:var(--rose)}
+  .bp-score-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
+  .bp-score-btn{
+    padding:12px;border-radius:10px;font-weight:800;font-size:20px;text-align:center;
+    background:var(--surface-2);border:2px solid var(--border);font-family:'Inter',sans-serif;
+    transition:border-color .15s ease, background .15s ease;
+  }
+  .bp-score-btn.selected{border-color:var(--gold);background:#1a1408;color:var(--gold)}
+
+  /* Meal cost modal */
+  .meal-section{margin-bottom:14px}
+  .meal-section-title{font-size:13px;color:var(--muted);font-weight:700;margin-bottom:8px;letter-spacing:.5px;text-align:center;padding:6px 0;border-bottom:1px dashed var(--border)}
+  .meal-grid{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:6px}
+  .meal-grid .meal-name{font-size:11px;color:var(--muted);text-align:center;margin-bottom:4px;font-weight:600}
+  .meal-grid input{
+    width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;
+    padding:10px 4px;font-size:16px;font-weight:700;text-align:center;outline:0;
+    font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;
+  }
+  .meal-grid input:focus{border-color:var(--gold)}
+  .meal-grid .meal-output-input{
+    width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;
+    padding:10px 4px;font-size:16px;font-weight:700;text-align:center;outline:0;
+    font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;color:var(--gold);
+  }
+  .meal-grid .meal-output-input:focus{border-color:var(--gold)}
 
   /* ---------- PAGE 3: 小氣簿 ---------- */
   .ledger-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
@@ -305,6 +352,10 @@
       <button class="div-btn" data-d="4">÷4</button>
       <button class="div-btn" data-d="3">÷3</button>
       <button class="div-btn" data-d="2">÷2</button>
+    </div>
+    <div class="mai-extra-bar">
+      <button class="mai-extra-btn" id="bonusPenaltyBtn">特別賞罰</button>
+      <button class="mai-extra-btn" id="mealCostBtn">計算飯錢</button>
     </div>
     <button class="write-btn" id="writeBtn">寫入小氣簿</button>
   </section>
@@ -976,6 +1027,138 @@ document.querySelectorAll('#divBar .div-btn').forEach(btn=>{
     renderMai();
     toast(`已 ÷${d}`,'success');
   });
+});
+
+// ---------- 特別賞罰 (Bonus/Penalty) ----------
+document.getElementById('bonusPenaltyBtn').addEventListener('click', ()=>{
+  let selUser = null, selType = null, selScore = null;
+  function renderBPState(){
+    document.querySelectorAll('.bp-user-btn').forEach((b,i)=>{
+      b.classList.toggle('selected', i===selUser);
+    });
+    document.querySelectorAll('.bp-type-btn').forEach(b=>{
+      b.classList.remove('selected-win','selected-lose');
+      if(b.dataset.type===selType){
+        b.classList.add(selType==='win'?'selected-win':'selected-lose');
+      }
+    });
+    document.querySelectorAll('.bp-score-btn').forEach(b=>{
+      b.classList.toggle('selected', +b.dataset.score===selScore);
+    });
+    const confirmBtn = document.getElementById('bp-confirm');
+    if(confirmBtn) confirmBtn.style.opacity = (selUser!==null && selType && selScore) ? '1' : '.4';
+  }
+  openModal(`
+    <h3>特別賞罰</h3>
+    <p>選擇玩家、收/賠、分數</p>
+    <div class="bp-user-grid">
+      ${[0,1,2,3].map(i=>`<button class="bp-user-btn" data-i="${i}">${escapeHtml(names[i])}</button>`).join('')}
+    </div>
+    <div class="bp-type-row">
+      <button class="bp-type-btn" data-type="win">贏（收）</button>
+      <button class="bp-type-btn" data-type="lose">賠（輸）</button>
+    </div>
+    <div class="bp-score-row">
+      <button class="bp-score-btn" data-score="5">5</button>
+      <button class="bp-score-btn" data-score="10">10</button>
+    </div>
+    <div class="modal-actions">
+      <button class="m-btn ghost" id="mc">取消</button>
+      <button class="m-btn primary" id="bp-confirm" style="opacity:.4">確認</button>
+    </div>
+  `);
+  document.querySelectorAll('.bp-user-btn').forEach(b=>{
+    b.addEventListener('click', ()=>{ selUser=+b.dataset.i; renderBPState(); });
+  });
+  document.querySelectorAll('.bp-type-btn').forEach(b=>{
+    b.addEventListener('click', ()=>{ selType=b.dataset.type; renderBPState(); });
+  });
+  document.querySelectorAll('.bp-score-btn').forEach(b=>{
+    b.addEventListener('click', ()=>{ selScore=+b.dataset.score; renderBPState(); });
+  });
+  document.getElementById('mc').onclick = closeModal;
+  document.getElementById('bp-confirm').onclick = ()=>{
+    if(selUser===null || !selType || !selScore) return;
+    undoStack.push({
+      accumulated: accumulated.slice(),
+      inputs: inputs.map(col=>col.slice()),
+      outputs: outputs.slice(),
+      tikai: tikai.slice(),
+      who: `特別賞罰·${names[selUser]}`,
+      whoIdx: selUser,
+      score: selScore,
+    });
+    if(selType==='win'){
+      accumulated[selUser] += selScore * 3;
+      for(let i=0;i<4;i++) if(i!==selUser) accumulated[i] -= selScore;
+    } else {
+      accumulated[selUser] -= selScore * 3;
+      for(let i=0;i<4;i++) if(i!==selUser) accumulated[i] += selScore;
+    }
+    persist(); renderMai(); closeModal();
+    toast(`${names[selUser]} ${selType==='win'?'贏':'賠'} ${selScore} 分`,'success');
+  };
+});
+
+// ---------- 計算飯錢 (Meal Cost) ----------
+document.getElementById('mealCostBtn').addEventListener('click', ()=>{
+  openModal(`
+    <h3>計算飯錢</h3>
+    <div class="meal-section">
+      <div class="meal-section-title">負責俾錢</div>
+      <div class="meal-grid">
+        ${[0,1,2,3].map(i=>`<div><div class="meal-name">${escapeHtml(names[i])}</div><input class="meal-input" data-i="${i}" type="number" inputmode="decimal" value="0" /></div>`).join('')}
+      </div>
+    </div>
+    <div class="meal-section">
+      <div class="meal-section-title">費用平攤</div>
+      <div class="meal-grid">
+        ${[0,1,2,3].map(i=>`<div><div class="meal-name">${escapeHtml(names[i])}</div><input class="meal-output-input" data-i="${i}" type="number" inputmode="decimal" value="0" /></div>`).join('')}
+      </div>
+      <button class="m-btn primary" id="meal-split-btn" style="margin-top:10px;width:100%">平攤</button>
+    </div>
+    <div class="modal-actions">
+      <button class="m-btn ghost" id="mc">取消</button>
+      <button class="m-btn primary" id="meal-confirm">確認</button>
+    </div>
+  `);
+  document.querySelectorAll('.meal-input, .meal-output-input').forEach(el=>{
+    el.addEventListener('focus', e=>e.target.select());
+  });
+  document.getElementById('meal-split-btn').onclick = ()=>{
+    let total = 0;
+    document.querySelectorAll('.meal-input').forEach(el=>{ total += parseFloat(el.value) || 0; });
+    const split = Math.round(total / 4 * 10) / 10;
+    document.querySelectorAll('.meal-output-input').forEach(el=>{ el.value = split; });
+  };
+  document.getElementById('mc').onclick = closeModal;
+  document.getElementById('meal-confirm').onclick = ()=>{
+    const paid = [0,0,0,0];
+    const owed = [0,0,0,0];
+    document.querySelectorAll('.meal-input').forEach(el=>{
+      paid[+el.dataset.i] = parseFloat(el.value) || 0;
+    });
+    document.querySelectorAll('.meal-output-input').forEach(el=>{
+      owed[+el.dataset.i] = parseFloat(el.value) || 0;
+    });
+    const totalPaid = paid.reduce((a,b)=>a+b,0);
+    const totalOwed = owed.reduce((a,b)=>a+b,0);
+    if(totalPaid === 0 && totalOwed === 0){ closeModal(); return; }
+    undoStack.push({
+      accumulated: accumulated.slice(),
+      inputs: inputs.map(col=>col.slice()),
+      outputs: outputs.slice(),
+      tikai: tikai.slice(),
+      who: '計算飯錢',
+      whoIdx: -1,
+      score: 0,
+    });
+    for(let i=0;i<4;i++){
+      accumulated[i] = Math.round((accumulated[i] + paid[i] - owed[i]) * 10) / 10;
+    }
+    persist(); renderMai(); closeModal();
+    toast('已計算飯錢 ✓','success');
+  };
 });
 
 // ---------- Routing / Tabs ----------
