@@ -909,11 +909,14 @@ function renderHistory(){
       return `<div class="day-row" style="grid-template-columns:repeat(${Math.max(entries.length,1)},1fr)">${cols}</div>`;
     }).join('');
     const editTs = recs[0]?.timestamp || '';
-    return `<div class="day-block"><div class="day-date"><span>${pretty}</span><button class="day-date-edit" data-ts="${editTs}" aria-label="編輯">✎</button></div>${rows}</div>`;
+    return `<div class="day-block"><div class="day-date"><span>${pretty}</span><div style="display:flex;gap:6px"><button class="day-date-edit" data-ts="${editTs}" aria-label="編輯">✎</button><button class="day-date-edit" data-ts="${editTs}" data-action="delete" aria-label="刪除" style="color:var(--rose)">✕</button></div></div>${rows}</div>`;
   }).join('');
   list.innerHTML = html;
   list.querySelectorAll('.day-date-edit').forEach(btn=>{
-    btn.addEventListener('click', ()=>openEditRecord(btn.dataset.ts));
+    btn.addEventListener('click', ()=>{
+      if(btn.dataset.action==='delete') confirmDeleteRecord(btn.dataset.ts);
+      else openEditRecord(btn.dataset.ts);
+    });
   });
 }
 function populateStatsNames(){
@@ -1090,8 +1093,8 @@ document.getElementById('bonusPenaltyBtn').addEventListener('click', ()=>{
       ${[0,1,2,3].map(i=>`<button class="bp-user-btn" data-i="${i}">${escapeHtml(names[i])}</button>`).join('')}
     </div>
     <div class="bp-type-row">
-      <button class="bp-type-btn" data-type="win">贏（收）</button>
-      <button class="bp-type-btn" data-type="lose">賠（輸）</button>
+      <button class="bp-type-btn" data-type="win">收</button>
+      <button class="bp-type-btn" data-type="lose">賠</button>
     </div>
     <div class="bp-score-row">
       <button class="bp-score-btn" data-score="5">5</button>
@@ -1275,6 +1278,47 @@ async function openEditRecord(ts){
       console.error(e);
       toast('更新失敗','error');
       confirmBtn.textContent = '儲存'; confirmBtn.disabled = false;
+    }
+  };
+}
+
+function confirmDeleteRecord(ts){
+  const rec = ledgerRecords.find(r=>String(r.timestamp)===String(ts));
+  if(!rec){ toast('找不到記錄','error'); return; }
+  const players = rec.players || {};
+  const summary = Object.entries(players).map(([n,s])=>`${n}: ${s}`).join('、');
+  openModal(`
+    <h3>刪除記錄</h3>
+    <p>${rec.date || ''}</p>
+    <p style="font-size:13px">${escapeHtml(summary)}</p>
+    <p style="color:var(--rose);font-size:13px">此操作無法復原，將同時刪除遊戲記錄及玩家歷史數據。</p>
+    <div class="modal-actions">
+      <button class="m-btn ghost" id="mc">取消</button>
+      <button class="m-btn danger" id="mo">確認刪除</button>
+    </div>
+  `);
+  document.getElementById('mc').onclick = closeModal;
+  document.getElementById('mo').onclick = async ()=>{
+    if(!db){ toast('Firebase 未連線','error'); return; }
+    const delBtn = document.getElementById('mo');
+    delBtn.textContent = '刪除中…'; delBtn.disabled = true;
+    try {
+      await db.ref('records/'+ts).remove();
+      for(const [name] of Object.entries(players)){
+        const encoded = encodeKey(name);
+        const histSnap = await db.ref('players/'+encoded+'/history').orderByChild('timestamp').equalTo(Number(ts)).once('value');
+        if(histSnap.exists()){
+          const keys = Object.keys(histSnap.val());
+          await Promise.all(keys.map(k=>db.ref('players/'+encoded+'/history/'+k).remove()));
+        }
+      }
+      closeModal();
+      toast('已刪除記錄 ✓','success');
+      await loadLedger();
+    } catch(e){
+      console.error(e);
+      toast('刪除失敗','error');
+      delBtn.textContent = '確認刪除'; delBtn.disabled = false;
     }
   };
 }
