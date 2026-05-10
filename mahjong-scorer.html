@@ -177,8 +177,10 @@
   .ledger-tab{padding:10px;border-radius:8px;font-weight:700;font-size:13px;color:var(--muted);transition:background .15s ease, color .15s ease}
   .ledger-tab.active{background:var(--surface-2);color:var(--gold)}
   .day-block{margin-bottom:18px;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:12px 14px}
-  .day-date{font-size:13px;color:var(--gold);font-weight:700;letter-spacing:1px;margin-bottom:8px}
-  .day-row{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:6px;padding:8px 0;border-top:1px dashed var(--border)}
+  .day-date{display:flex;align-items:center;justify-content:space-between;font-size:13px;color:var(--gold);font-weight:700;letter-spacing:1px;margin-bottom:8px}
+  .day-date-edit{display:flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:8px;color:var(--muted);font-size:14px;transition:color .15s ease, background .15s ease}
+  .day-date-edit:active{background:var(--surface-2);color:var(--gold)}
+  .day-row{display:grid;gap:6px;padding:8px 0;border-top:1px dashed var(--border)}
   .day-row:first-of-type{border-top:0}
   .pl-name{font-size:11px;color:var(--muted);text-align:center}
   .pl-score{font-size:20px;font-weight:800;text-align:center;font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums}
@@ -882,7 +884,8 @@ function renderHistory(){
   });
   const html = Object.keys(groups).sort((a,b)=>b.localeCompare(a)).map(date=>{
     const pretty = date.replace(/-/g,'').replace(/(\d{4})(\d{2})(\d{2})/,'$1年$2月$3日');
-    const rows = groups[date].map(rec=>{
+    const recs = groups[date];
+    const rows = recs.map(rec=>{
       const players = rec.players || {};
       const entries = Object.entries(players);
       const cols = entries.map(([n,s])=>{
@@ -891,9 +894,13 @@ function renderHistory(){
       }).join('');
       return `<div class="day-row" style="grid-template-columns:repeat(${Math.max(entries.length,1)},1fr)">${cols}</div>`;
     }).join('');
-    return `<div class="day-block"><div class="day-date">${pretty}</div>${rows}</div>`;
+    const editTs = recs[0]?.timestamp || '';
+    return `<div class="day-block"><div class="day-date"><span>${pretty}</span><button class="day-date-edit" data-ts="${editTs}" aria-label="編輯">✎</button></div>${rows}</div>`;
   }).join('');
   list.innerHTML = html;
+  list.querySelectorAll('.day-date-edit').forEach(btn=>{
+    btn.addEventListener('click', ()=>openEditRecord(btn.dataset.ts));
+  });
 }
 function populateStatsNames(){
   const set = new Set();
@@ -1160,6 +1167,89 @@ document.getElementById('mealCostBtn').addEventListener('click', ()=>{
     toast('已計算飯錢 ✓','success');
   };
 });
+
+// ---------- Edit Record ----------
+async function openEditRecord(ts){
+  const rec = ledgerRecords.find(r=>String(r.timestamp)===String(ts));
+  if(!rec){ toast('找不到記錄','error'); return; }
+  const players = rec.players || {};
+  const entries = Object.entries(players);
+  const fieldsHtml = entries.map(([n,s],i)=>`
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
+      <div class="field" style="margin:0"><label>名稱</label><input class="edit-rec-name" data-i="${i}" data-orig="${escapeHtml(n)}" value="${escapeHtml(n)}" maxlength="7" /></div>
+      <div class="field" style="margin:0"><label>分數</label><input class="edit-rec-score" data-i="${i}" type="number" inputmode="decimal" value="${s}" /></div>
+    </div>
+  `).join('');
+  openModal(`
+    <h3>編輯記錄</h3>
+    <p>${rec.date || ''}</p>
+    ${fieldsHtml}
+    <div class="modal-actions">
+      <button class="m-btn ghost" id="mc">取消</button>
+      <button class="m-btn primary" id="mo">儲存</button>
+    </div>
+  `);
+  document.getElementById('mc').onclick = closeModal;
+  document.getElementById('mo').onclick = async ()=>{
+    if(!db){ toast('Firebase 未連線','error'); return; }
+    const nameInputs = document.querySelectorAll('.edit-rec-name');
+    const scoreInputs = document.querySelectorAll('.edit-rec-score');
+    const newPlayers = {};
+    const renames = [];
+    nameInputs.forEach((inp,i)=>{
+      const origName = inp.dataset.orig;
+      const newName = inp.value.trim() || origName;
+      const newScore = parseFloat(scoreInputs[i].value) || 0;
+      newPlayers[newName] = newScore;
+      if(newName !== origName) renames.push({origName, newName});
+    });
+    const confirmBtn = document.getElementById('mo');
+    confirmBtn.textContent = '儲存中…'; confirmBtn.disabled = true;
+    try {
+      await db.ref('records/'+ts+'/players').set(newPlayers);
+      // Update player history nodes
+      const oldEntries = entries;
+      for(const [origName, origScore] of oldEntries){
+        const newName = renames.find(r=>r.origName===origName)?.newName;
+        const encodedOrig = encodeKey(origName);
+        // Find and remove old history entry for this timestamp
+        const histSnap = await db.ref('players/'+encodedOrig+'/history').orderByChild('timestamp').equalTo(Number(ts)).once('value');
+        if(histSnap.exists()){
+          const histData = histSnap.val();
+          const histKeys = Object.keys(histData);
+          if(newName){
+            // Name changed: remove from old player node, add to new
+            await Promise.all(histKeys.map(k=>db.ref('players/'+encodedOrig+'/history/'+k).remove()));
+            const encodedNew = encodeKey(newName);
+            await db.ref('players/'+encodedNew+'/history').push({
+              timestamp: Number(ts), date: rec.date, score: newPlayers[newName]
+            });
+          } else {
+            // Same name, update score
+            const finalName = origName;
+            const newScore = newPlayers[finalName];
+            if(newScore !== undefined){
+              await Promise.all(histKeys.map(k=>db.ref('players/'+encodedOrig+'/history/'+k+'/score').set(newScore)));
+            }
+          }
+        } else if(newName){
+          // No old history but name changed — create under new name
+          const encodedNew = encodeKey(newName);
+          await db.ref('players/'+encodedNew+'/history').push({
+            timestamp: Number(ts), date: rec.date, score: newPlayers[newName]
+          });
+        }
+      }
+      closeModal();
+      toast('已更新記錄 ✓','success');
+      await loadLedger();
+    } catch(e){
+      console.error(e);
+      toast('更新失敗','error');
+      confirmBtn.textContent = '儲存'; confirmBtn.disabled = false;
+    }
+  };
+}
 
 // ---------- Routing / Tabs ----------
 function setPage(name){
