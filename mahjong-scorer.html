@@ -99,8 +99,8 @@
   .player-card.me{width:140px;border-color:#3a2a08;background:linear-gradient(180deg,#1a1408,#171717)}
   .player-card .pname{font-size:13px;color:var(--muted);font-weight:600;margin-bottom:6px;letter-spacing:.5px}
   .player-card.me .pname{color:var(--gold)}
-  .player-card .pscore{font-size:34px;font-weight:900;font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;line-height:1}
-  .player-card.me .pscore{font-size:34px}
+  .player-card .pscore{font-size:28px;font-weight:900;font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;line-height:1;white-space:nowrap}
+  .player-card.me .pscore{font-size:28px}
   .pscore.pos{color:var(--emerald)}
   .pscore.neg{color:var(--rose)}
   .pscore.zero{color:var(--muted)}
@@ -173,7 +173,7 @@
   /* ---------- PAGE 3: 小氣簿 ---------- */
   .ledger-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
   .refresh-btn{padding:8px 14px;border-radius:10px;background:var(--surface-2);border:1px solid var(--border);font-size:13px;font-weight:600;color:var(--gold-soft)}
-  .ledger-tabs{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:14px;background:var(--surface);padding:4px;border-radius:12px;border:1px solid var(--border)}
+  .ledger-tabs{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:14px;background:var(--surface);padding:4px;border-radius:12px;border:1px solid var(--border)}
   .ledger-tab{padding:10px;border-radius:8px;font-weight:700;font-size:13px;color:var(--muted);transition:background .15s ease, color .15s ease}
   .ledger-tab.active{background:var(--surface-2);color:var(--gold)}
   .day-block{margin-bottom:18px;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:12px 14px}
@@ -191,16 +191,30 @@
   .stats-input-wrap label{display:block;font-size:11px;color:var(--muted);margin-bottom:6px;letter-spacing:1px}
   .stats-input-wrap input{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px;font-size:16px;outline:0;color:var(--text);font-family:inherit}
   .stats-input-wrap input:focus{border-color:var(--gold)}
-  .stats-section{margin-bottom:14px;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px}
-  .stats-title{font-size:13px;color:var(--gold);font-weight:700;margin-bottom:12px;letter-spacing:1px}
-  .stats-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-  .stats-cell{text-align:center;padding:6px 4px;background:var(--bg);border:1px solid var(--border);border-radius:10px}
-  .stats-label{font-size:11px;color:var(--muted);margin-bottom:8px;letter-spacing:.5px}
-  .stats-value{font-size:22px;font-weight:900;font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;line-height:1.1}
+  .stats-section{margin-bottom:10px;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:10px 12px}
+  .stats-title{font-size:13px;color:var(--gold);font-weight:700;margin-bottom:8px;letter-spacing:1px}
+  .stats-row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .stats-cell{text-align:center;padding:10px 6px;background:var(--bg);border:1px solid var(--border);border-radius:10px;overflow:hidden}
+  .stats-label{font-size:11px;color:var(--muted);margin-bottom:6px;letter-spacing:.5px}
+  .stats-value{font-size:22px;font-weight:900;font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;line-height:1.1;white-space:nowrap}
   .stats-value.pos{color:var(--emerald)}
   .stats-value.neg{color:var(--rose)}
   .stats-value.zero{color:var(--muted)}
   .stats-meta{font-size:11px;color:var(--muted);margin-top:6px;min-height:14px}
+
+  /* Ranking table */
+  .rank-table{width:100%;border-collapse:collapse}
+  .rank-table th{font-size:11px;color:var(--muted);font-weight:600;padding:6px 4px;text-align:center;border-bottom:1px solid var(--border);letter-spacing:.5px}
+  .rank-table th:nth-child(2){text-align:left}
+  .rank-table td{padding:10px 4px;text-align:center;font-size:14px;font-weight:600;border-bottom:1px dashed var(--border)}
+  .rank-table td:nth-child(2){text-align:left}
+  .rank-table tr:last-child td{border-bottom:0}
+  .rank-table .rank-num{font-size:16px;font-weight:900;color:var(--gold);font-family:'Inter',sans-serif}
+  .rank-table .rank-score{font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;font-weight:800;font-size:15px}
+  .rank-table .rank-score.pos{color:var(--emerald)}
+  .rank-table .rank-score.neg{color:var(--rose)}
+  .rank-table .rank-score.zero{color:var(--muted)}
+  .rank-table .rank-wl{font-size:12px;color:var(--muted);font-family:'Inter',sans-serif}
 
   /* ---------- BOTTOM NAV ---------- */
   .nav{
@@ -245,6 +259,7 @@
   .fab-menu.open .fab-item:nth-child(1){transition-delay:.05s}
   .fab-menu.open .fab-item:nth-child(2){transition-delay:.10s}
   .fab-menu.open .fab-item:nth-child(3){transition-delay:.15s}
+  .fab-menu.open .fab-item:nth-child(4){transition-delay:.20s}
   .fab-item .ico{font-size:16px}
   .fab-item.danger{color:var(--rose)}
   .fab-item.gold{color:var(--gold)}
@@ -343,10 +358,10 @@
   <!-- ========== PAGE 2: 埋數 ========== -->
   <section class="page" id="page-mai">
     <div class="diamond">
-      <div class="row-d"><div class="player-card" id="pc-2"><div class="pname"></div><div class="pscore num">0</div></div></div>
+      <div class="row-d"><div class="player-card" id="pc-1"><div class="pname"></div><div class="pscore num">0</div></div></div>
       <div class="row-d">
-        <div class="player-card" id="pc-1"><div class="pname"></div><div class="pscore num">0</div></div>
         <div class="player-card" id="pc-0"><div class="pname"></div><div class="pscore num">0</div></div>
+        <div class="player-card" id="pc-2"><div class="pname"></div><div class="pscore num">0</div></div>
       </div>
       <div class="row-d"><div class="player-card me" id="pc-3"><div class="pname"></div><div class="pscore num">0</div></div></div>
     </div>
@@ -366,7 +381,8 @@
   <section class="page" id="page-ledger">
     <div class="ledger-tabs">
       <button class="ledger-tab active" data-view="history">歷史記錄</button>
-      <button class="ledger-tab" data-view="stats">數據統計</button>
+      <button class="ledger-tab" data-view="stats">個人數據</button>
+      <button class="ledger-tab" data-view="ranking">排名榜</button>
     </div>
     <div id="ledgerList"></div>
     <div id="ledgerStats" style="display:none">
@@ -385,7 +401,6 @@
           <div class="stats-cell">
             <div class="stats-label">勝率</div>
             <div class="stats-value" id="stat-winRate">—</div>
-            <div class="stats-meta" id="stat-winRateMeta"></div>
           </div>
         </div>
       </div>
@@ -403,22 +418,20 @@
             <div class="stats-meta" id="stat-worstDate"></div>
           </div>
         </div>
-      </div>
-      <div class="stats-section">
-        <div class="stats-title">雀友記錄</div>
-        <div class="stats-row">
+        <div class="stats-row" style="margin-top:10px">
           <div class="stats-cell">
-            <div class="stats-label">麻將俠</div>
-            <div class="stats-value" id="stat-topWinner">—</div>
-            <div class="stats-meta" id="stat-topWinnerName"></div>
+            <div class="stats-label">平均勝場金額</div>
+            <div class="stats-value" id="stat-avgWin">—</div>
           </div>
           <div class="stats-cell">
-            <div class="stats-label">輸錢皇</div>
-            <div class="stats-value" id="stat-topLoser">—</div>
-            <div class="stats-meta" id="stat-topLoserName"></div>
+            <div class="stats-label">平均敗場金額</div>
+            <div class="stats-value" id="stat-avgLoss">—</div>
           </div>
         </div>
       </div>
+    </div>
+    <div id="ledgerRanking" style="display:none">
+      <div id="rankingTable"></div>
     </div>
   </section>
 </div>
@@ -427,6 +440,7 @@
 <div class="fab-menu" id="fabMenu">
   <button class="fab-item danger" data-action="reset"><span class="ico">↺</span>重設牌局</button>
   <button class="fab-item gold" data-action="rename"><span class="ico">✎</span>改名</button>
+  <button class="fab-item" data-action="swap"><span class="ico">⇄</span>換位</button>
   <button class="fab-item" data-action="undo"><span class="ico">⟲</span>復原</button>
 </div>
 <button class="fab" id="fabBtn" aria-label="menu">+</button>
@@ -610,7 +624,7 @@ function renderMai(animateIdx){
     card.querySelector('.pname').textContent = i===3 ? names[3] : names[i];
     const sEl = card.querySelector('.pscore');
     const v = accumulated[i];
-    sEl.textContent = (Number(v)||0).toFixed(1);
+    const n = Number(v)||0; sEl.textContent = (n<0?'-$':' $') + Math.abs(n).toFixed(1);
     sEl.classList.remove('pos','neg','zero','bump');
     sEl.classList.add(v>0?'pos':(v<0?'neg':'zero'));
     card.onclick = ()=>openNumpadMai(i);
@@ -861,7 +875,7 @@ async function loadLedger(){
     populateStatsNames();
     const inputEl = document.getElementById('statsName');
     if(!inputEl.dataset.initialized){
-      inputEl.value = names[3] || '';
+      inputEl.value = '';
       inputEl.dataset.initialized = '1';
     }
     renderStats();
@@ -932,20 +946,6 @@ function renderStats(){
   const year = String(new Date().getFullYear());
   document.getElementById('stat-yearTitle').textContent = `全年累積（${year}）`;
 
-  // Aggregate everyone for 雀友記錄 (not filtered by user)
-  const playerTotals = {};
-  for(const r of records){
-    if(!r.players) continue;
-    for(const [pname, score] of Object.entries(r.players)){
-      playerTotals[pname] = (playerTotals[pname]||0) + (Number(score)||0);
-    }
-  }
-  let topWinner = null, topLoser = null;
-  for(const [pname, total] of Object.entries(playerTotals)){
-    if(topWinner===null || total > topWinner.total) topWinner = {name:pname, total};
-    if(topLoser===null  || total < topLoser.total)  topLoser  = {name:pname, total};
-  }
-
   // Per-user
   const userRecs = q ? records.filter(r => r.players && (q in r.players)) : [];
   const yearRecs = userRecs.filter(r => (r.date||'').startsWith(year));
@@ -953,37 +953,65 @@ function renderStats(){
   const winCount = yearRecs.filter(r => (Number(r.players[q])||0) > 0).length;
   const winRate = yearRecs.length ? (winCount / yearRecs.length * 100) : null;
 
-  let best=null, worst=null;
+  let best=null, worst=null, winTotal=0, lossTotal=0, winGames=0, lossGames=0;
   for(const r of userRecs){
     const s = Number(r.players[q]) || 0;
     if(best===null  || s > best.score)  best  = {score:s, date:r.date};
     if(worst===null || s < worst.score) worst = {score:s, date:r.date};
+    if(s > 0){ winTotal += s; winGames++; }
+    else if(s < 0){ lossTotal += s; lossGames++; }
   }
+  const avgWin  = winGames  ? winTotal  / winGames  : null;
+  const avgLoss = lossGames ? lossTotal / lossGames : null;
 
   // Year section
   setStatValue('stat-yearTotal', q ? fmtMoneyStat(yearTotal) : '—', q ? statClass(yearTotal) : '');
   setStatValue('stat-winRate', winRate===null ? '—' : winRate.toFixed(1)+'%', '');
-  document.getElementById('stat-winRateMeta').textContent = yearRecs.length ? `${winCount}/${yearRecs.length} 場` : '';
 
   // Personal records
   setStatValue('stat-best',  best  ? fmtMoneyStat(best.score)  : '—', best  ? statClass(best.score)  : '');
   document.getElementById('stat-bestDate').textContent  = best  ? fmtDateStat(best.date)  : '';
   setStatValue('stat-worst', worst ? fmtMoneyStat(worst.score) : '—', worst ? statClass(worst.score) : '');
   document.getElementById('stat-worstDate').textContent = worst ? fmtDateStat(worst.date) : '';
-
-  // 雀友
-  setStatValue('stat-topWinner', topWinner ? fmtMoneyStat(topWinner.total) : '—', topWinner ? statClass(topWinner.total) : '');
-  document.getElementById('stat-topWinnerName').textContent = topWinner ? topWinner.name : '';
-  setStatValue('stat-topLoser',  topLoser  ? fmtMoneyStat(topLoser.total)  : '—', topLoser  ? statClass(topLoser.total)  : '');
-  document.getElementById('stat-topLoserName').textContent  = topLoser  ? topLoser.name : '';
+  setStatValue('stat-avgWin',  avgWin  !== null ? fmtMoneyStat(avgWin)  : '—', avgWin  !== null ? statClass(avgWin)  : '');
+  setStatValue('stat-avgLoss', avgLoss !== null ? fmtMoneyStat(avgLoss) : '—', avgLoss !== null ? statClass(avgLoss) : '');
+}
+function renderRanking(){
+  const records = ledgerRecords || [];
+  const playerTotals = {};
+  for(const r of records){
+    if(!r.players) continue;
+    for(const [pname, score] of Object.entries(r.players)){
+      playerTotals[pname] = (playerTotals[pname]||0) + (Number(score)||0);
+    }
+  }
+  const rankData = Object.entries(playerTotals).map(([name, total])=>{
+    const wins = records.filter(r=> r.players && (name in r.players) && Number(r.players[name])>0).length;
+    const losses = records.filter(r=> r.players && (name in r.players) && Number(r.players[name])<0).length;
+    return {name, total, wins, losses};
+  }).sort((a,b)=>b.total - a.total);
+  const rankEl = document.getElementById('rankingTable');
+  if(rankData.length){
+    rankEl.innerHTML = `<table class="rank-table"><thead><tr><th>排名</th><th>玩家</th><th>贏/輸</th><th>金額</th></tr></thead><tbody>`
+      + rankData.map((p,i)=>{
+        const cls = p.total>0?'pos':(p.total<0?'neg':'zero');
+        const score = p.total>0 ? '+$'+Math.abs(p.total).toFixed(1) : (p.total<0 ? '-$'+Math.abs(p.total).toFixed(1) : '$0.0');
+        return `<tr><td class="rank-num">${i+1}</td><td>${escapeHtml(p.name)}</td><td class="rank-wl">${p.wins}/${p.losses}</td><td class="rank-score ${cls}">${score}</td></tr>`;
+      }).join('')
+      + `</tbody></table>`;
+  } else {
+    rankEl.innerHTML = '<div style="text-align:center;color:var(--muted);padding:12px">尚無數據</div>';
+  }
 }
 document.querySelectorAll('.ledger-tab').forEach(t=>{
   t.addEventListener('click', ()=>{
     document.querySelectorAll('.ledger-tab').forEach(x=>x.classList.toggle('active', x===t));
     const view = t.dataset.view;
-    document.getElementById('ledgerList').style.display  = view==='history' ? '' : 'none';
-    document.getElementById('ledgerStats').style.display = view==='stats'   ? '' : 'none';
+    document.getElementById('ledgerList').style.display    = view==='history' ? '' : 'none';
+    document.getElementById('ledgerStats').style.display   = view==='stats'   ? '' : 'none';
+    document.getElementById('ledgerRanking').style.display = view==='ranking' ? '' : 'none';
     if(view==='stats') renderStats();
+    if(view==='ranking') renderRanking();
   });
 });
 document.getElementById('statsName').addEventListener('input', renderStats);
@@ -1286,6 +1314,7 @@ fabMenu.querySelectorAll('.fab-item').forEach(b=>{
     const a = b.dataset.action;
     if(a==='reset') confirmReset();
     else if(a==='rename') openRename();
+    else if(a==='swap') openSwap();
     else if(a==='undo'){
       if(!undoStack.length){ toast('沒有可復原的操作'); return; }
       const snap = undoStack.pop();
@@ -1352,6 +1381,49 @@ function openRename(){
     });
     persist(); renderAll(); closeModal();
     toast('已更新名稱','success');
+  };
+}
+
+function openSwap(){
+  openModal(`
+    <h3>換位</h3>
+    <p>選擇兩位玩家交換位置（名稱及分數）。</p>
+    <div class="bp-user-grid">
+      ${[0,1,2,3].map(i=>`<button class="bp-user-btn swap-pick" data-i="${i}">${escapeHtml(names[i])}</button>`).join('')}
+    </div>
+    <div class="modal-actions">
+      <button class="m-btn ghost" id="mc">取消</button>
+      <button class="m-btn primary" id="mo" disabled>確認換位</button>
+    </div>
+  `);
+  const picks = [];
+  document.querySelectorAll('.swap-pick').forEach(btn=>{
+    btn.onclick = ()=>{
+      const idx = +btn.dataset.i;
+      const pos = picks.indexOf(idx);
+      if(pos!==-1){ picks.splice(pos,1); btn.classList.remove('selected'); }
+      else if(picks.length<2){ picks.push(idx); btn.classList.add('selected'); }
+      document.getElementById('mo').disabled = picks.length!==2;
+    };
+  });
+  document.getElementById('mc').onclick = closeModal;
+  document.getElementById('mo').onclick = ()=>{
+    const [a,b] = picks;
+    [names[a], names[b]] = [names[b], names[a]];
+    [accumulated[a], accumulated[b]] = [accumulated[b], accumulated[a]];
+    if(a<3 && b<3){
+      [inputs[a], inputs[b]] = [inputs[b], inputs[a]];
+      [outputs[a], outputs[b]] = [outputs[b], outputs[a]];
+      [tikai[a], tikai[b]] = [tikai[b], tikai[a]];
+    } else {
+      const grid = a<3 ? a : b;
+      const me = a===3 ? a : b;
+      inputs[grid] = Array(7).fill(null);
+      outputs[grid] = 0;
+      tikai[grid] = false;
+    }
+    persist(); renderAll(); closeModal();
+    toast(`已交換 ${names[a]} ↔ ${names[b]}`,'success');
   };
 }
 
