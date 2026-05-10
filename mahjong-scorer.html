@@ -1213,7 +1213,7 @@ async function openEditRecord(ts){
   `).join('');
   openModal(`
     <h3>編輯記錄</h3>
-    <p>${rec.date || ''}</p>
+    <div class="field"><label>日期</label><input id="edit-rec-date" type="date" value="${escapeHtml(rec.date||'')}" /></div>
     ${fieldsHtml}
     <div class="modal-actions">
       <button class="m-btn ghost" id="mc">取消</button>
@@ -1225,6 +1225,8 @@ async function openEditRecord(ts){
     if(!db){ toast('Firebase 未連線','error'); return; }
     const nameInputs = document.querySelectorAll('.edit-rec-name');
     const scoreInputs = document.querySelectorAll('.edit-rec-score');
+    const newDate = document.getElementById('edit-rec-date').value || rec.date || '';
+    const dateChanged = newDate !== (rec.date || '');
     const newPlayers = {};
     const renames = [];
     nameInputs.forEach((inp,i)=>{
@@ -1238,6 +1240,7 @@ async function openEditRecord(ts){
     confirmBtn.textContent = '儲存中…'; confirmBtn.disabled = true;
     try {
       await db.ref('records/'+ts+'/players').set(newPlayers);
+      if(dateChanged) await db.ref('records/'+ts+'/date').set(newDate);
       // Update player history nodes
       const oldEntries = entries;
       for(const [origName, origScore] of oldEntries){
@@ -1253,21 +1256,25 @@ async function openEditRecord(ts){
             await Promise.all(histKeys.map(k=>db.ref('players/'+encodedOrig+'/history/'+k).remove()));
             const encodedNew = encodeKey(newName);
             await db.ref('players/'+encodedNew+'/history').push({
-              timestamp: Number(ts), date: rec.date, score: newPlayers[newName]
+              timestamp: Number(ts), date: newDate, score: newPlayers[newName]
             });
           } else {
-            // Same name, update score
+            // Same name, update score (and date if changed)
             const finalName = origName;
             const newScore = newPlayers[finalName];
             if(newScore !== undefined){
-              await Promise.all(histKeys.map(k=>db.ref('players/'+encodedOrig+'/history/'+k+'/score').set(newScore)));
+              await Promise.all(histKeys.map(k=>{
+                const updates = {score: newScore};
+                if(dateChanged) updates.date = newDate;
+                return db.ref('players/'+encodedOrig+'/history/'+k).update(updates);
+              }));
             }
           }
         } else if(newName){
           // No old history but name changed — create under new name
           const encodedNew = encodeKey(newName);
           await db.ref('players/'+encodedNew+'/history').push({
-            timestamp: Number(ts), date: rec.date, score: newPlayers[newName]
+            timestamp: Number(ts), date: newDate, score: newPlayers[newName]
           });
         }
       }
